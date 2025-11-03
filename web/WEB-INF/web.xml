@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_5_0.xsd"
+         version="5.0">
+
+    <welcome-file-list>
+        <welcome-file>login</welcome-file>
+    </welcome-file-list>
+
+    <!-- Explicit servlet registrations to ensure routing works across environments -->
+    <servlet>
+        <servlet-name>LoginServlet</servlet-name>
+        <servlet-class>controller.authentication.LoginServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>LoginServlet</servlet-name>
+        <url-pattern>/login</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>DashboardServlet</servlet-name>
+        <servlet-class>controller.dashboard.DashboardServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>DashboardServlet</servlet-name>
+        <url-pattern>/dashboard</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>RegisterMemberServlet</servlet-name>
+        <servlet-class>controller.memberMgt.RegisterMemberServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>RegisterMemberServlet</servlet-name>
+        <url-pattern>/member/register</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>LogoutServlet</servlet-name>
+        <servlet-class>controller.authentication.LogoutServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>LogoutServlet</servlet-name>
+        <url-pattern>/logout</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>UpdateMemberServlet</servlet-name>
+        <servlet-class>controller.memberMgt.UpdateMemberServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>UpdateMemberServlet</servlet-name>
+        <url-pattern>/member/update</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>RenewMembershipServlet</servlet-name>
+        <servlet-class>controller.memberMgt.RenewMembershipServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>RenewMembershipServlet</servlet-name>
+        <url-pattern>/member/renew</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>LockUnlockAccountServlet</servlet-name>
+        <servlet-class>controller.memberMgt.LockUnlockAccountServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>LockUnlockAccountServlet</servlet-name>
+        <url-pattern>/member/lock-unlock</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>AddBookServlet</servlet-name>
+        <servlet-class>controller.bookMgt.AddBookServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>AddBookServlet</servlet-name>
+        <url-pattern>/book/add</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>UpdateBookServlet</servlet-name>
+        <servlet-class>controller.bookMgt.UpdateBookServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>UpdateBookServlet</servlet-name>
+        <url-pattern>/book/update</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>RemoveBookServlet</servlet-name>
+        <servlet-class>controller.bookMgt.RemoveBookServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>RemoveBookServlet</servlet-name>
+        <url-pattern>/book/remove</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>ManageCategoriesServlet</servlet-name>
+        <servlet-class>controller.bookMgt.ManageCategoriesServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ManageCategoriesServlet</servlet-name>
+        <url-pattern>/book/categories</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>LendBookServlet</servlet-name>
+        <servlet-class>controller.transaction.LendBookServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>LendBookServlet</servlet-name>
+        <url-pattern>/transaction/lend</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>ReturnBookServlet</servlet-name>
+        <servlet-class>controller.transaction.ReturnBookServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ReturnBookServlet</servlet-name>
+        <url-pattern>/transaction/return</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>RenewBookServlet</servlet-name>
+        <servlet-class>controller.transaction.RenewBookServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>RenewBookServlet</servlet-name>
+        <url-pattern>/transaction/renew</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>ProcessLateFeesServlet</servlet-name>
+        <servlet-class>controller.transaction.ProcessLateFeesServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ProcessLateFeesServlet</servlet-name>
+        <url-pattern>/transaction/fines</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>SearchBooksServlet</servlet-name>
+        <servlet-class>controller.bookMgt.SearchBooksServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>SearchBooksServlet</servlet-name>
+        <url-pattern>/books</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>BookDetailServlet</servlet-name>
+        <servlet-class>controller.bookMgt.BookDetailServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>BookDetailServlet</servlet-name>
+        <url-pattern>/books/detail</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>ReserveBookServlet</servlet-name>
+        <servlet-class>controller.reservation.ReserveBookServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ReserveBookServlet</servlet-name>
+        <url-pattern>/books/reserve</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>CancelReservationServlet</servlet-name>
+        <servlet-class>controller.reservation.CancelReservationServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>CancelReservationServlet</servlet-name>
+        <url-pattern>/books/cancel-reservation</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>MyReservationsServlet</servlet-name>
+        <servlet-class>controller.reservation.MyReservationsServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>MyReservationsServlet</servlet-name>
+        <url-pattern>/books/my-reservations</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>ViewBorrowingHistoryServlet</servlet-name>
+        <servlet-class>controller.personal.ViewBorrowingHistoryServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ViewBorrowingHistoryServlet</servlet-name>
+        <url-pattern>/personal/borrowing-history</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>ViewCurrentBorrowingsServlet</servlet-name>
+        <servlet-class>controller.personal.ViewCurrentBorrowingsServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ViewCurrentBorrowingsServlet</servlet-name>
+        <url-pattern>/personal/current-borrowings</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>RequestRenewalServlet</servlet-name>
+        <servlet-class>controller.personal.RequestRenewalServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>RequestRenewalServlet</servlet-name>
+        <url-pattern>/personal/request-renewal</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>ViewNotificationsServlet</servlet-name>
+        <servlet-class>controller.personal.ViewNotificationsServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ViewNotificationsServlet</servlet-name>
+        <url-pattern>/personal/notifications</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>MarkNotificationReadServlet</servlet-name>
+        <servlet-class>controller.personal.MarkNotificationReadServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>MarkNotificationReadServlet</servlet-name>
+        <url-pattern>/personal/mark-notification-read</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>ReportsServlet</servlet-name>
+        <servlet-class>controller.reports.ReportsServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ReportsServlet</servlet-name>
+        <url-pattern>/reports/statistics</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>OverdueBooksServlet</servlet-name>
+        <servlet-class>controller.reports.OverdueBooksServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>OverdueBooksServlet</servlet-name>
+        <url-pattern>/reports/overdue-books</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>SendRemindersServlet</servlet-name>
+        <servlet-class>controller.reports.SendRemindersServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>SendRemindersServlet</servlet-name>
+        <url-pattern>/reports/send-reminders</url-pattern>
+    </servlet-mapping>
+
+</web-app>
+
+

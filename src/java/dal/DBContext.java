@@ -43,6 +43,10 @@ public abstract class DBContext {
         }
     }
 
+    public Connection getConnection() {
+        return connection;
+    }
+
     public static void main(String[] args) {
         System.out.println("Testing database connection...");
         DBContext context = null;
