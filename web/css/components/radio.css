@@ -1,0 +1,63 @@
+/* Radio Group Components */
+
+.radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.radio-option {
+    display: flex;
+    align-items: flex-start;
+    padding: var(--spacing-md);
+    border: 2px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all var(--transition-base);
+    background: var(--color-white);
+}
+
+.radio-option:hover {
+    border-color: var(--color-primary);
+    background: rgba(96,165,250,.05);
+}
+
+.radio-option input[type="radio"] {
+    margin-right: var(--spacing-md);
+    margin-top: .125rem;
+    cursor: pointer;
+}
+
+.radio-option input[type="radio"]:checked + .radio-label {
+    color: var(--color-primary-darker);
+}
+
+/* Style radio option when radio is checked */
+.radio-option.is-checked {
+    border-color: var(--color-primary);
+    background: rgba(96,165,250,.1);
+}
+
+.radio-label {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: .25rem;
+}
+
+.radio-label i {
+    font-size: 1.125rem;
+    color: var(--color-primary);
+    margin-bottom: .25rem;
+}
+
+.radio-label strong {
+    font-size: .9375rem;
+    color: var(--color-text);
+}
+
+.radio-label small {
+    font-size: .8125rem;
+    color: var(--color-text-muted);
+}
+

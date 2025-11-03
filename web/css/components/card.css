@@ -1,0 +1,29 @@
+/* Card Components */
+
+.card {
+    background: var(--color-white);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-lg);
+    box-shadow: var(--shadow-sm);
+}
+
+.auth-card {
+    width: 32rem;
+    max-width: 92vw;
+    background: rgba(255,255,255,.96);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-xl);
+    overflow: hidden;
+}
+
+.auth-hero {
+    display: none;
+    height: 0;
+    background: transparent;
+}
+
+.auth-content {
+    padding: var(--spacing-2xl) 2.25rem 2.25rem;
+}
+

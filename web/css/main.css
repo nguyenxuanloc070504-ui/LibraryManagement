@@ -1,0 +1,32 @@
+/* Main CSS - Import all modules */
+
+/* Base */
+@import url('base/variables.css');
+@import url('base/reset.css');
+@import url('base/typography.css');
+
+/* Components */
+@import url('components/button.css');
+@import url('components/card.css');
+@import url('components/navbar.css');
+@import url('components/dropdown.css');
+@import url('components/alert.css');
+@import url('components/form.css');
+@import url('components/table.css');
+@import url('components/badge.css');
+@import url('components/info-card.css');
+@import url('components/radio.css');
+
+/* Layouts */
+@import url('layouts/sidebar.css');
+@import url('layouts/header.css');
+@import url('layouts/grid.css');
+
+/* Pages */
+@import url('pages/login.css');
+@import url('pages/dashboard.css');
+
+/* Utils */
+@import url('utils/helpers.css');
+@import url('utils/animations.css');
+

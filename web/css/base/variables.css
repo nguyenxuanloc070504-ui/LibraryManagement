@@ -1,0 +1,70 @@
+/* CSS Variables - Design Tokens */
+:root {
+    /* Colors - Primary */
+    --color-primary: #60a5fa;
+    --color-primary-dark: #3b82f6;
+    --color-primary-darker: #1d4ed8;
+    
+    /* Colors - Neutral */
+    --color-text: #0f172a;
+    --color-text-muted: #64748b;
+    --color-text-light: #6b7280;
+    --color-bg: #f6f9ff;
+    --color-white: #ffffff;
+    --color-border: #e5e7eb;
+    --color-border-light: #d1d5db;
+    
+    /* Colors - Semantic */
+    --color-error: #dc2626;
+    --color-error-bg: #fee2e2;
+    --color-error-border: #fecaca;
+    --color-error-text: #b91c1c;
+    
+    /* Colors - Social */
+    --color-facebook: #3b5998;
+    --color-twitter: #1da1f2;
+    --color-google: #db4437;
+    --color-linkedin: #0a66c2;
+    
+    /* Typography */
+    --font-family-base: "Segoe UI", Roboto, Arial, sans-serif;
+    --font-family-serif: Georgia, "Times New Roman", serif;
+    --font-size-base: 1rem;
+    --font-size-sm: .8125rem;
+    --font-size-xs: .6875rem;
+    --font-size-lg: 1.125rem;
+    --font-size-xl: 1.5rem;
+    --font-size-2xl: 1.75rem;
+    --font-size-3xl: 3rem;
+    
+    /* Spacing */
+    --spacing-xs: .25rem;
+    --spacing-sm: .5rem;
+    --spacing-md: .75rem;
+    --spacing-lg: 1rem;
+    --spacing-xl: 1.5rem;
+    --spacing-2xl: 2rem;
+    
+    /* Border Radius */
+    --radius-sm: .5rem;
+    --radius-md: .75rem;
+    --radius-lg: 1.5rem;
+    --radius-full: 50%;
+    
+    /* Shadows */
+    --shadow-sm: 0 1px 3px rgba(0,0,0,.05);
+    --shadow-md: 0 2px 8px rgba(0,0,0,.05);
+    --shadow-lg: 0 10px 25px rgba(0,0,0,.08);
+    --shadow-xl: 0 2rem 4.5rem rgba(2, 132, 199, .15);
+    --shadow-button: 0 .5rem 1.25rem rgba(96,165,250,.25);
+    --shadow-avatar: 0 2px 8px rgba(96,165,250,.25);
+    
+    /* Transitions */
+    --transition-fast: .02s ease-in;
+    --transition-base: .2s;
+    
+    /* Layout */
+    --sidebar-width: 17.5rem;
+    --header-height: 5rem;
+}
+

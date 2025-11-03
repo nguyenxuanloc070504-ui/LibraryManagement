@@ -1,0 +1,26 @@
+/* Alert Components */
+
+.alert-error {
+    background: var(--color-error-bg);
+    color: var(--color-error-text);
+    border: .0625rem solid var(--color-error-border);
+    padding: .625rem var(--spacing-md);
+    border-radius: var(--radius-sm);
+    margin-bottom: var(--spacing-lg);
+}
+
+.alert-success {
+    background: #d1fae5;
+    color: #065f46;
+    border: .0625rem solid #a7f3d0;
+    padding: .625rem var(--spacing-md);
+    border-radius: var(--radius-sm);
+    margin-bottom: var(--spacing-lg);
+}
+
+.field-error {
+    color: var(--color-error);
+    font-style: italic;
+    font-size: var(--font-size-sm);
+    margin-top: .375rem;
+}

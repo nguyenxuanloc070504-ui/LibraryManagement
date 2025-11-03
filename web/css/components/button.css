@@ -1,0 +1,122 @@
+/* Button Components */
+
+.btn-primary {
+    width: 100%;
+    background: var(--color-primary);
+    color: var(--color-white);
+    border: 0;
+    border-radius: var(--radius-sm);
+    padding: var(--spacing-lg) 1.125rem;
+    font-size: var(--font-size-lg);
+    font-weight: 550;
+    cursor: pointer;
+    transition: transform var(--transition-fast), background var(--transition-base);
+    box-shadow: var(--shadow-button);
+}
+
+.btn-primary:hover {
+    background: var(--color-primary-dark);
+}
+
+.btn-primary:active {
+    transform: translateY(1px);
+}
+
+.btn-secondary {
+    background: var(--color-border);
+    color: #374151;
+    border: 0;
+    border-radius: var(--radius-sm);
+    padding: var(--spacing-md) 1.125rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.btn-secondary:hover {
+    background: var(--color-border-light);
+}
+
+.btn-icon {
+    position: relative;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: var(--radius-full);
+    border: 1px solid var(--color-border);
+    background: var(--color-white);
+    color: var(--color-text-light);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition-base);
+    font-size: var(--font-size-lg);
+}
+
+.btn-icon:hover {
+    background: #f9fafb;
+    color: var(--color-primary);
+    border-color: var(--color-border-light);
+    transform: translateY(-1px);
+}
+
+.btn-icon-text {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    padding: .5rem .75rem;
+    background: var(--color-primary);
+    color: var(--color-white);
+    border-radius: var(--radius-sm);
+    text-decoration: none;
+    font-size: .875rem;
+    font-weight: 500;
+    transition: background var(--transition-base);
+}
+
+.btn-icon-text:hover {
+    background: var(--color-primary-dark);
+}
+
+.btn-social {
+    width: 4rem;
+    height: 4rem;
+    border-radius: var(--radius-full);
+    border: 0;
+    color: var(--color-white);
+    font-weight: 700;
+    font-size: 1.375rem;
+    cursor: pointer;
+    box-shadow: 0 .5rem 1.25rem rgba(0,0,0,.14);
+    transition: transform var(--transition-base), box-shadow var(--transition-base);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-social:hover {
+    transform: translateY(-.125rem);
+    box-shadow: 0 .75rem 1.75rem rgba(0,0,0,.18);
+}
+
+.btn-social.fb {
+    background: var(--color-facebook);
+}
+
+.btn-social.tw {
+    background: var(--color-twitter);
+}
+
+.btn-social.gg {
+    background: var(--color-google);
+}
+
+.btn-social.li {
+    background: var(--color-linkedin);
+}
+
+.social-row {
+    display: flex;
+    gap: var(--spacing-lg);
+    justify-content: flex-start;
+    margin: var(--spacing-xl) 0 var(--spacing-lg);
+}
