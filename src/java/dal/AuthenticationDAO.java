@@ -40,6 +40,34 @@ public class AuthenticationDAO extends DBContext {
         }
         return null;
     }
+
+    /**
+     * Find librarian by username or email (supports both login methods)
+     * @param usernameOrEmail - Username or email address
+     * @return AuthUser if found, null otherwise
+     * @throws SQLException
+     */
+    public AuthUser findLibrarianByUsernameOrEmail(String usernameOrEmail) throws SQLException {
+        String sql = "SELECT u.user_id, u.username, u.full_name, u.password_hash " +
+                "FROM Users u JOIN Roles r ON u.role_id = r.role_id " +
+                "WHERE r.role_name = 'Librarian' AND " +
+                "(u.username = ? OR u.email = ?) AND u.account_status = 'active'";
+        try (Connection conn = this.connection; PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, usernameOrEmail);
+            ps.setString(2, usernameOrEmail);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return new AuthUser(
+                            rs.getInt("user_id"),
+                            rs.getString("username"),
+                            rs.getString("full_name"),
+                            rs.getString("password_hash")
+                    );
+                }
+            }
+        }
+        return null;
+    }
 }
 
 

@@ -1,5 +1,31 @@
 /* Form Components */
 
+/* Global placeholder styling - applied system-wide */
+input::placeholder,
+textarea::placeholder,
+select::placeholder {
+    color: var(--color-text-light);
+}
+
+/* Webkit placeholder support */
+input::-webkit-input-placeholder,
+textarea::-webkit-input-placeholder {
+    color: var(--color-text-light);
+}
+
+/* Firefox placeholder support */
+input::-moz-placeholder,
+textarea::-moz-placeholder {
+    color: var(--color-text-light);
+    opacity: 1;
+}
+
+/* Edge placeholder support */
+input::-ms-input-placeholder,
+textarea::-ms-input-placeholder {
+    color: var(--color-text-light);
+}
+
 .auth-form {
     margin-top: var(--spacing-sm);
 }
@@ -32,8 +58,45 @@
     background: transparent;
 }
 
+/* Auth form placeholders */
 .input input::placeholder {
-    color: #93c5fd;
+    color: var(--color-text-light);
+}
+
+.input input::-webkit-input-placeholder {
+    color: var(--color-text-light);
+}
+
+.input input::-moz-placeholder {
+    color: var(--color-text-light);
+    opacity: 1;
+}
+
+.input input::-ms-input-placeholder {
+    color: var(--color-text-light);
+}
+
+/* Placeholder styling for box-style inputs (dashboard forms) */
+.input.box input::placeholder,
+.input.box textarea::placeholder,
+.input.box select::placeholder {
+    color: var(--color-text-light);
+}
+
+.input.box input::-webkit-input-placeholder,
+.input.box textarea::-webkit-input-placeholder {
+    color: var(--color-text-light);
+}
+
+.input.box input::-moz-placeholder,
+.input.box textarea::-moz-placeholder {
+    color: var(--color-text-light);
+    opacity: 1;
+}
+
+.input.box input::-ms-input-placeholder,
+.input.box textarea::-ms-input-placeholder {
+    color: var(--color-text-light);
 }
 
 .with-icon .icon {

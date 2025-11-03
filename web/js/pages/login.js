@@ -6,8 +6,12 @@
 (function() {
     'use strict';
     
-    // Add any login-specific JavaScript here
-    // For example: remember me functionality, auto-fill, etc.
+    // Initialize email validation for login form using system-wide function
+    initEmailValidation('email', {
+        message: 'Invalid email format',
+        realtime: true,
+        form: document.querySelector('.auth-form')
+    });
     
     // Check if there are any error messages and focus on first input
     const errorAlert = document.querySelector('.alert-error');

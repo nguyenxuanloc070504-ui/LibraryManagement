@@ -76,3 +76,63 @@ function bindRealtimeValidation(element, handler) {
     });
 }
 
+/**
+ * Initialize email validation for an input field
+ * Can be used system-wide for any email input
+ * @param {HTMLInputElement|string} inputOrId - Input element or its ID
+ * @param {Object} options - Configuration options
+ * @param {string} options.message - Custom error message (default: "Invalid email format")
+ * @param {boolean} options.realtime - Enable real-time validation (default: true)
+ * @param {HTMLElement} options.form - Form element to validate on submit (optional)
+ */
+function initEmailValidation(inputOrId, options = {}) {
+    const input = typeof inputOrId === 'string' 
+        ? document.getElementById(inputOrId) || document.querySelector(inputOrId)
+        : inputOrId;
+    
+    if (!input) return;
+    
+    const {
+        message = 'Invalid email format',
+        realtime = true,
+        form = null
+    } = options;
+    
+    const validateEmailField = function() {
+        const email = input.value.trim();
+        
+        // Clear error if empty (let HTML5 required handle it)
+        if (email === '') {
+            clearFieldError(input);
+            return true;
+        }
+        
+        // Validate email format
+        if (!validateEmail(email)) {
+            setFieldError(input, message);
+            return false;
+        }
+        
+        clearFieldError(input);
+        return true;
+    };
+    
+    // Bind realtime validation if enabled
+    if (realtime) {
+        bindRealtimeValidation(input, validateEmailField);
+    }
+    
+    // Validate on form submit if form is provided
+    const formElement = form || input.closest('form');
+    if (formElement) {
+        formElement.addEventListener('submit', function(e) {
+            if (!validateEmailField()) {
+                e.preventDefault();
+                input.focus();
+            }
+        });
+    }
+    
+    return validateEmailField;
+}
+
