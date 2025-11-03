@@ -12,64 +12,15 @@
 </head>
 <body>
 <div class="layout">
-    <aside class="sidebar">
-        <div class="brand-small">Library Management System</div>
-        <nav class="nav">
-            <div class="nav-section">
-                <div class="nav-section-title">Main Menu</div>
-                <a href="<%= request.getContextPath() %>/dashboard" class="nav-item">
-                    <i class="fa-solid fa-chart-line"></i>
-                    <span>Dashboard</span>
-                </a>
-            </div>
-            <div class="nav-section">
-                <div class="nav-section-title">Member Management</div>
-                <a href="<%= request.getContextPath() %>/member/register" class="nav-item">
-                    <i class="fa-solid fa-user-plus"></i>
-                    <span>Register New Member</span>
-                </a>
-                <a href="<%= request.getContextPath() %>/member/update" class="nav-item">
-                    <i class="fa-solid fa-user-pen"></i>
-                    <span>Update Member</span>
-                </a>
-                <a href="<%= request.getContextPath() %>/member/renew" class="nav-item active">
-                    <i class="fa-solid fa-rotate"></i>
-                    <span>Renew Membership</span>
-                </a>
-                <a href="<%= request.getContextPath() %>/member/lock-unlock" class="nav-item">
-                    <i class="fa-solid fa-user-lock"></i>
-                    <span>Lock/Unlock Account</span>
-                </a>
-            </div>
-            <div class="nav-section">
-                <div class="nav-section-title">Book Management</div>
-                <a href="<%= request.getContextPath() %>/book/add" class="nav-item">
-                    <i class="fa-solid fa-book-medical"></i>
-                    <span>Add New Book</span>
-                </a>
-                <a href="<%= request.getContextPath() %>/book/update" class="nav-item">
-                    <i class="fa-solid fa-pen-to-square"></i>
-                    <span>Update Book</span>
-                </a>
-                <a href="<%= request.getContextPath() %>/book/remove" class="nav-item">
-                    <i class="fa-solid fa-trash-can"></i>
-                    <span>Remove Book</span>
-                </a>
-                <a href="<%= request.getContextPath() %>/book/categories" class="nav-item">
-                    <i class="fa-solid fa-layer-group"></i>
-                    <span>Manage Categories</span>
-                </a>
-            </div>
-        </nav>
-    </aside>
+    <jsp:include page="/components/sidebar.jsp">
+        <jsp:param name="activeItem" value="member-renew"/>
+    </jsp:include>
 
     <main class="content">
-        <header class="content-header">
-            <div>
-                <h1 class="page-title">Renew Membership</h1>
-                <p class="page-subtitle">Extend library card validity period for members</p>
-            </div>
-        </header>
+        <jsp:include page="/components/header.jsp">
+            <jsp:param name="pageTitle" value="Renew Membership"/>
+            <jsp:param name="pageSubtitle" value="Extend library card validity period for members"/>
+        </jsp:include>
 
         <div class="main-content">
             <% if (request.getAttribute("success") != null) { %>
@@ -191,11 +142,14 @@
                                 <div class="input box">
                                     <select name="extension_months" required>
                                         <option value="">Select extension period</option>
-                                        <option value="1">1 Month</option>
-                                        <option value="3">3 Months</option>
-                                        <option value="6">6 Months</option>
-                                        <option value="12" selected>12 Months</option>
-                                        <option value="24">24 Months</option>
+                                        <%
+                                            int defMonths = (member.membershipType != null && "student".equalsIgnoreCase(member.membershipType)) ? 6 : 12;
+                                        %>
+                                        <option value="1" <%= defMonths==1?"selected":"" %>>1 Month</option>
+                                        <option value="3" <%= defMonths==3?"selected":"" %>>3 Months</option>
+                                        <option value="6" <%= defMonths==6?"selected":"" %>>6 Months</option>
+                                        <option value="12" <%= defMonths==12?"selected":"" %>>12 Months</option>
+                                        <option value="24" <%= defMonths==24?"selected":"" %>>24 Months</option>
                                     </select>
                                 </div>
                             </div>

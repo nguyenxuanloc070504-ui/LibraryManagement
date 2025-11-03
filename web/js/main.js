@@ -18,6 +18,18 @@
             initAllDropdowns();
         }
         
+        // Auto-dismiss alerts after 3s (pastel alerts)
+        const alerts = document.querySelectorAll('.alert-success, .alert-error');
+        if (alerts.length) {
+            setTimeout(() => {
+                alerts.forEach(a => {
+                    a.style.transition = 'opacity .3s ease';
+                    a.style.opacity = '0';
+                    setTimeout(() => a.remove(), 300);
+                });
+            }, 3000);
+        }
+
         // Add any other global initialization here
         console.log('Library Management System initialized');
     }

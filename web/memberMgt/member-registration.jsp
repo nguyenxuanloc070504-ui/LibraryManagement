@@ -10,125 +10,24 @@
 </head>
 <body>
 <div class="layout">
-    <aside class="sidebar">
-        <div class="brand-small">Library Management System</div>
-
-        <nav class="nav">
-            <div class="nav-section">
-                <div class="nav-section-title">Main Menu</div>
-                <a href="<%= request.getContextPath() %>/dashboard" class="nav-item">
-                    <i class="fa-solid fa-chart-line"></i>
-                    <span>Dashboard</span>
-                </a>
-            </div>
-
-            <div class="nav-section">
-                <div class="nav-section-title">Member Management</div>
-                <a href="<%= request.getContextPath() %>/member/register" class="nav-item active">
-                    <i class="fa-solid fa-user-plus"></i>
-                    <span>Register New Member</span>
-                </a>
-                <a href="<%= request.getContextPath() %>/member/update" class="nav-item">
-                    <i class="fa-solid fa-user-pen"></i>
-                    <span>Update Member</span>
-                </a>
-                <a href="<%= request.getContextPath() %>/member/renew" class="nav-item">
-                    <i class="fa-solid fa-rotate"></i>
-                    <span>Renew Membership</span>
-                </a>
-                <a href="<%= request.getContextPath() %>/member/lock-unlock" class="nav-item">
-                    <i class="fa-solid fa-user-lock"></i>
-                    <span>Lock/Unlock Account</span>
-                </a>
-            </div>
-
-            <div class="nav-section">
-                <div class="nav-section-title">Book Management</div>
-                <a href="<%= request.getContextPath() %>/book/add" class="nav-item">
-                    <i class="fa-solid fa-book-medical"></i>
-                    <span>Add New Book</span>
-                </a>
-                <a href="<%= request.getContextPath() %>/book/update" class="nav-item">
-                    <i class="fa-solid fa-pen-to-square"></i>
-                    <span>Update Book</span>
-                </a>
-                <a href="<%= request.getContextPath() %>/book/remove" class="nav-item">
-                    <i class="fa-solid fa-trash-can"></i>
-                    <span>Remove Book</span>
-                </a>
-                <a href="<%= request.getContextPath() %>/book/categories" class="nav-item">
-                    <i class="fa-solid fa-layer-group"></i>
-                    <span>Manage Categories</span>
-                </a>
-            </div>
-
-            <div class="nav-section">
-                <div class="nav-section-title">Transactions</div>
-                <a href="#" class="nav-item">
-                    <i class="fa-solid fa-hand-holding"></i>
-                    <span>Lend Book</span>
-                </a>
-                <a href="#" class="nav-item">
-                    <i class="fa-solid fa-arrow-rotate-left"></i>
-                    <span>Return Book</span>
-                </a>
-                <a href="#" class="nav-item">
-                    <i class="fa-solid fa-coins"></i>
-                    <span>Process Late Fees</span>
-                </a>
-            </div>
-
-            <div class="nav-section">
-                <div class="nav-section-title">Reports</div>
-                <a href="#" class="nav-item">
-                    <i class="fa-solid fa-chart-pie"></i>
-                    <span>Reports & Statistics</span>
-                </a>
-                <a href="#" class="nav-item">
-                    <i class="fa-solid fa-clock"></i>
-                    <span>Overdue Management</span>
-                </a>
-            </div>
-        </nav>
-    </aside>
+    <jsp:include page="/components/sidebar.jsp">
+        <jsp:param name="activeItem" value="member-register"/>
+    </jsp:include>
 
     <main class="content">
-        <header class="content-header">
-            <div>
-                <h1 class="page-title">Register New Member</h1>
-                <p class="page-subtitle">Create a library membership for a new user</p>
-            </div>
-            <div class="header-actions">
-                <div class="user-dropdown">
-                    <button class="user-trigger" type="button" aria-haspopup="true" aria-expanded="false">
-                        <div class="user-avatar">
-                            <i class="fa-solid fa-user-tie"></i>
-                        </div>
-                        <div class="user-info">
-                            <div class="user-name"><%= session.getAttribute("authFullName") != null ? session.getAttribute("authFullName") : "Librarian" %></div>
-                            <div class="user-role">Administrator</div>
-                        </div>
-                        <i class="fa-solid fa-chevron-down" style="font-size:.85rem;color:#6b7280;margin-left:.25rem;"></i>
-                    </button>
-                    <div class="user-menu" role="menu">
-                        <a href="#" class="menu-item" role="menuitem">
-                            <i class="fa-regular fa-id-badge"></i>
-                            <span>Profile</span>
-                        </a>
-                        <a href="#" class="menu-item" role="menuitem">
-                            <i class="fa-solid fa-gear"></i>
-                            <span>Setting</span>
-                        </a>
-                        <a href="<%= request.getContextPath() %>/logout" class="menu-item danger" role="menuitem">
-                            <i class="fa-solid fa-right-from-bracket"></i>
-                            <span>Logout</span>
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </header>
+        <jsp:include page="/components/header.jsp">
+            <jsp:param name="pageTitle" value="Register New Member"/>
+            <jsp:param name="pageSubtitle" value="Create a library membership for a new user"/>
+        </jsp:include>
 
         <div class="main-content">
+            <% if (request.getAttribute("success") != null) { %>
+                <div class="alert-success"><%= request.getAttribute("success") %></div>
+                <script>
+                    // Redirect to member list (update page) after 3 seconds
+                    setTimeout(function(){ window.location.href = '<%= request.getContextPath() %>/member/update?search=' + encodeURIComponent('<%= request.getParameter("username") != null ? request.getParameter("username") : "" %>'); }, 3000);
+                </script>
+            <% } %>
             <section class="card" style="width: 100%;">
                 <div>
                     <h2 class="form-section-title">Member Details</h2>
@@ -153,14 +52,14 @@
             <div class="form-grid two-col">
                 <div class="form-field">
                     <label class="label-muted">Username<span class="req">*</span></label>
-                    <div class="input box"><input name="username" value="<%= request.getParameter("username") != null ? request.getParameter("username") : "" %>" required /></div>
+                    <div class="input box"><input id="username" name="username" value="<%= request.getParameter("username") != null ? request.getParameter("username") : "" %>" required /></div>
                     <% if (request.getAttribute("errors") != null) { java.util.Map e = (java.util.Map)request.getAttribute("errors"); if (e.get("username") != null) { %>
                     <div class="field-error"><%= e.get("username") %></div>
                     <% } } %>
                 </div>
                 <div class="form-field">
                     <label class="label-muted">Password<span class="req">*</span></label>
-                    <div class="input box"><input type="password" name="password" required /></div>
+                    <div class="input box"><input id="password" type="password" name="password" required /></div>
                     <% if (request.getAttribute("errors") != null) { java.util.Map e = (java.util.Map)request.getAttribute("errors"); if (e.get("password") != null) { %>
                     <div class="field-error"><%= e.get("password") %></div>
                     <% } } %>
@@ -174,18 +73,21 @@
                 </div>
                 <div class="form-field">
                     <label class="label-muted">Email<span class="req">*</span></label>
-                    <div class="input box"><input type="email" name="email" value="<%= request.getParameter("email") != null ? request.getParameter("email") : "" %>" required /></div>
+                    <div class="input box"><input id="email" type="email" name="email" value="<%= request.getParameter("email") != null ? request.getParameter("email") : "" %>" required /></div>
                     <% if (request.getAttribute("errors") != null) { java.util.Map e = (java.util.Map)request.getAttribute("errors"); if (e.get("email") != null) { %>
                     <div class="field-error"><%= e.get("email") %></div>
                     <% } } %>
                 </div>
                 <div class="form-field">
                     <label class="label-muted">Phone</label>
-                    <div class="input box"><input name="phone" /></div>
+                    <div class="input box"><input id="phone" name="phone" value="<%= request.getParameter("phone") != null ? request.getParameter("phone") : "" %>" /></div>
+                    <% if (request.getAttribute("errors") != null) { java.util.Map e = (java.util.Map)request.getAttribute("errors"); if (e.get("phone") != null) { %>
+                    <div class="field-error"><%= e.get("phone") %></div>
+                    <% } } %>
                 </div>
                 <div class="form-field">
                     <label class="label-muted">Date of Birth</label>
-                    <div class="input box"><input type="date" name="date_of_birth" value="<%= request.getParameter("date_of_birth") != null ? request.getParameter("date_of_birth") : "" %>" /></div>
+                    <div class="input box"><input id="date_of_birth" type="date" name="date_of_birth" value="<%= request.getParameter("date_of_birth") != null ? request.getParameter("date_of_birth") : "" %>" /></div>
                     <% if (request.getAttribute("errors") != null) { java.util.Map e = (java.util.Map)request.getAttribute("errors"); if (e.get("date_of_birth") != null) { %>
                     <div class="field-error"><%= e.get("date_of_birth") %></div>
                     <% } } %>
@@ -220,6 +122,10 @@
         </div>
     </main>
 </div>
+<script>
+    // Pass context path to JavaScript
+    window.APP_CONTEXT_PATH = '<%= request.getContextPath() %>';
+</script>
 <script src="<%= request.getContextPath() %>/js/utils/validate.js"></script>
 <script src="<%= request.getContextPath() %>/js/utils/format.js"></script>
 <script src="<%= request.getContextPath() %>/js/components/dropdown.js"></script>

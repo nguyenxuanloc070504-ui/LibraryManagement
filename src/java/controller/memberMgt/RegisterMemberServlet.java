@@ -48,15 +48,48 @@ public class RegisterMemberServlet extends HttpServlet {
 
         // Basic + detailed validation
         java.util.Map<String, String> errors = new java.util.HashMap<>();
-        if (isEmpty(username)) errors.put("username", "Username is required.");
-        if (isEmpty(password)) errors.put("password", "Password is required.");
-        if (isEmpty(fullName)) errors.put("full_name", "Full name is required.");
+        
+        // Username validation
+        if (isEmpty(username)) {
+            errors.put("username", "Username is required.");
+        } else {
+            MemberDAO checkDao = new MemberDAO();
+            try {
+                if (checkDao.usernameExists(username.trim())) {
+                    errors.put("username", "Username already exists.");
+                }
+            } catch (SQLException e) {
+                errors.put("username", "Error checking username: " + e.getMessage());
+            } finally {
+                checkDao.close();
+            }
+        }
+        
+        // Password validation
+        if (isEmpty(password)) {
+            errors.put("password", "Password is required.");
+        } else if (password.length() < 6) {
+            errors.put("password", "Password must be at least 6 characters.");
+        }
+        
+        // Full name validation
+        if (isEmpty(fullName)) {
+            errors.put("full_name", "Full name is required.");
+        }
+        
+        // Email validation
         if (isEmpty(email)) {
             errors.put("email", "Email is required.");
         } else if (!email.matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")) {
-            errors.put("email", "Email format is invalid.");
+            errors.put("email", "Invalid email format.");
         }
-
+        
+        // Phone validation (optional field, but must be 10 digits if provided)
+        if (!isEmpty(phone) && !phone.trim().matches("^\\d{10}$")) {
+            errors.put("phone", "Phone must be exactly 10 digits.");
+        }
+        
+        // Date of birth validation
         if (!isEmpty(dob)) {
             try {
                 java.time.LocalDate parsed = java.time.LocalDate.parse(dob);
@@ -102,7 +135,11 @@ public class RegisterMemberServlet extends HttpServlet {
         LocalDate issue = LocalDate.now();
         int validityMonths = membershipTypeValidityMonths(membershipType);
         int maxBooks = membershipTypeMaxBooks(membershipType);
-        LocalDate expiry = issue.plus(validityMonths, ChronoUnit.MONTHS);
+        // Ensure expiry is strictly after issue date
+        LocalDate expiry = issue.plusMonths(validityMonths);
+        if (!expiry.isAfter(issue)) {
+            expiry = issue.plusMonths(Math.max(1, validityMonths));
+        }
 
         Membership m = new Membership();
         m.setMembershipType(membershipType);
@@ -113,12 +150,9 @@ public class RegisterMemberServlet extends HttpServlet {
         MemberDAO dao = new MemberDAO();
         try {
             MemberDAO.CreateMemberResult result = dao.createMember(user, m);
-            request.setAttribute("membershipNumber", result.membershipNumber);
-            request.setAttribute("username", username);
-            request.setAttribute("fullName", fullName);
-            request.setAttribute("expiryDate", expiry.toString());
-            request.setAttribute("membershipTypes", allowedTypes);
-            request.getRequestDispatcher("/memberMgt/member-registration.jsp").forward(request, response);
+            // Redirect immediately to members list with success flag
+            // Redirect to members list (show full list) with success flag
+            response.sendRedirect(request.getContextPath() + "/member/list?success=1");
         } catch (SQLException e) {
             request.setAttribute("error", e.getMessage());
             request.setAttribute("membershipTypes", allowedTypes);

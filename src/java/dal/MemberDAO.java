@@ -24,6 +24,8 @@ public class MemberDAO extends DBContext {
 
     public List<String> getAvailableMembershipTypes() throws SQLException {
         List<String> types = new ArrayList<>();
+
+        // 1) Try to read distinct values from data
         String sql = "SELECT DISTINCT membership_type FROM Memberships ORDER BY membership_type";
         try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
@@ -31,11 +33,29 @@ public class MemberDAO extends DBContext {
                 if (t != null && !t.trim().isEmpty()) types.add(t);
             }
         }
+
+        // 2) If table has no rows yet, fall back to reading ENUM values from schema (still from database)
         if (types.isEmpty()) {
-            types.add("basic");
-            types.add("premium");
-            types.add("student");
+            String enumSql = "SELECT COLUMN_TYPE FROM INFORMATION_SCHEMA.COLUMNS " +
+                    "WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'Memberships' AND COLUMN_NAME = 'membership_type'";
+            try (PreparedStatement ps = connection.prepareStatement(enumSql); ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    String columnType = rs.getString(1); // e.g., enum('basic','premium','student')
+                    if (columnType != null && columnType.startsWith("enum(")) {
+                        String inner = columnType.substring(5, columnType.length() - 1); // remove enum( and )
+                        // split by comma not inside quotes (values are simple, so split by , then trim quotes)
+                        for (String part : inner.split(",")) {
+                            String val = part.trim();
+                            if (val.startsWith("'") && val.endsWith("'")) {
+                                val = val.substring(1, val.length() - 1);
+                            }
+                            if (!val.isEmpty()) types.add(val);
+                        }
+                    }
+                }
+            }
         }
+
         return types;
     }
 
@@ -142,6 +162,68 @@ public class MemberDAO extends DBContext {
             }
         }
         return null;
+    }
+
+    /**
+     * Fetch basic user info for any role (no membership join requirement)
+     */
+    public MemberDetail findUserCoreById(int userId) throws SQLException {
+        String sql = "SELECT u.user_id, u.username, u.email, u.full_name, u.phone, u.address, u.date_of_birth, u.profile_photo, u.account_status " +
+                     "FROM Users u WHERE u.user_id = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    MemberDetail d = new MemberDetail();
+                    d.userId = rs.getInt("user_id");
+                    d.username = rs.getString("username");
+                    d.email = rs.getString("email");
+                    d.fullName = rs.getString("full_name");
+                    d.phone = rs.getString("phone");
+                    d.address = rs.getString("address");
+                    d.dateOfBirth = rs.getDate("date_of_birth");
+                    d.profilePhoto = rs.getString("profile_photo");
+                    d.accountStatus = rs.getString("account_status");
+                    return d;
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Update core user profile fields. If a provided value is null, the existing
+     * value in the database will be preserved via COALESCE.
+     */
+    public int updateUserProfile(int userId,
+                                 String fullName,
+                                 String email,
+                                 String phone,
+                                 String address,
+                                 java.sql.Date dateOfBirth,
+                                 String profilePhotoPath) throws SQLException {
+        String sql = "UPDATE Users SET " +
+                "full_name = COALESCE(?, full_name), " +
+                "email = COALESCE(?, email), " +
+                "phone = COALESCE(?, phone), " +
+                "address = COALESCE(?, address), " +
+                "date_of_birth = COALESCE(?, date_of_birth), " +
+                "profile_photo = COALESCE(?, profile_photo) " +
+                "WHERE user_id = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, fullName);
+            ps.setString(2, email);
+            ps.setString(3, phone);
+            ps.setString(4, address);
+            if (dateOfBirth != null) {
+                ps.setDate(5, dateOfBirth);
+            } else {
+                ps.setNull(5, java.sql.Types.DATE);
+            }
+            ps.setString(6, profilePhotoPath);
+            ps.setInt(7, userId);
+            return ps.executeUpdate();
+        }
     }
 
     /**
@@ -315,6 +397,22 @@ public class MemberDAO extends DBContext {
     }
 
     /**
+     * Check if username exists in database
+     * @param username - Username to check
+     * @return true if username exists, false otherwise
+     * @throws SQLException
+     */
+    public boolean usernameExists(String username) throws SQLException {
+        String sql = "SELECT 1 FROM Users WHERE username = ? LIMIT 1";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, username.trim());
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        }
+    }
+
+    /**
      * Search members by username, email, or membership number
      */
     public List<MemberDetail> searchMembers(String searchTerm) throws SQLException {
@@ -343,6 +441,80 @@ public class MemberDAO extends DBContext {
             }
         }
         return results;
+    }
+
+    /**
+     * Count members for search/filter
+     */
+    public int countMembers(String searchTerm, String status) throws SQLException {
+        StringBuilder sql = new StringBuilder(
+            "SELECT COUNT(*) FROM Users u WHERE u.role_id = (SELECT role_id FROM Roles WHERE role_name='Member')"
+        );
+        List<Object> params = new ArrayList<>();
+        if (searchTerm != null && !searchTerm.trim().isEmpty()) {
+            sql.append(" AND (u.username LIKE ? OR u.email LIKE ? OR u.full_name LIKE ?)");
+            String p = "%" + searchTerm + "%";
+            params.add(p); params.add(p); params.add(p);
+        }
+        if (status != null && !status.trim().isEmpty() && !"all".equalsIgnoreCase(status)) {
+            sql.append(" AND u.account_status = ?");
+            params.add(status);
+        }
+        try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) ps.setObject(i + 1, params.get(i));
+            try (ResultSet rs = ps.executeQuery()) { if (rs.next()) return rs.getInt(1); }
+        }
+        return 0;
+    }
+
+    /**
+     * Paged search members with status filter
+     */
+    public List<MemberDetail> searchMembersPaged(String searchTerm, String status, int offset, int limit) throws SQLException {
+        List<MemberDetail> results = new ArrayList<>();
+        StringBuilder sql = new StringBuilder(
+            "SELECT u.user_id, u.username, u.email, u.full_name, u.phone, u.address, " +
+            "u.date_of_birth, u.profile_photo, u.account_status, " +
+            "m.membership_id, m.membership_number, m.membership_type, m.issue_date, m.expiry_date, m.max_books_allowed, m.is_active " +
+            "FROM Users u LEFT JOIN Memberships m ON u.user_id = m.user_id " +
+            "WHERE u.role_id = (SELECT role_id FROM Roles WHERE role_name = 'Member')"
+        );
+        List<Object> params = new ArrayList<>();
+        if (searchTerm != null && !searchTerm.trim().isEmpty()) {
+            sql.append(" AND (u.username LIKE ? OR u.email LIKE ? OR u.full_name LIKE ? OR m.membership_number LIKE ?)");
+            String p = "%" + searchTerm + "%";
+            params.add(p); params.add(p); params.add(p); params.add(p);
+        }
+        if (status != null && !status.trim().isEmpty() && !"all".equalsIgnoreCase(status)) {
+            sql.append(" AND u.account_status = ?");
+            params.add(status);
+        }
+        sql.append(" ORDER BY u.full_name LIMIT ? OFFSET ?");
+        try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
+            int idx = 1;
+            for (Object o : params) { ps.setObject(idx++, o); }
+            ps.setInt(idx++, limit);
+            ps.setInt(idx, offset);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) results.add(mapToMemberDetail(rs));
+            }
+        }
+        return results;
+    }
+
+    /**
+     * One-time corrective task: ensure expiry_date is after issue_date.
+     * If expiry_date is null or not greater than issue_date, set it based on membership_type
+     * (basic/premium: +12 months, student: +6 months).
+     */
+    public int fixIncorrectExpiry() throws SQLException {
+        String sql = "UPDATE Memberships m SET m.expiry_date = CASE " +
+                "WHEN m.membership_type = 'student' THEN DATE_ADD(m.issue_date, INTERVAL 6 MONTH) " +
+                "ELSE DATE_ADD(m.issue_date, INTERVAL 12 MONTH) END " +
+                "WHERE m.expiry_date IS NULL OR m.expiry_date <= m.issue_date";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            return ps.executeUpdate();
+        }
     }
 
     /**

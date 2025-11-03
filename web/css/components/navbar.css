@@ -34,10 +34,14 @@
 
 .nav-item.active {
     background: rgba(96,165,250,.18);
-    color: var(--color-primary);
+    color: var(--color-primary-darker);
     font-weight: 600;
     border-left: 3px solid var(--color-primary);
     padding-left: calc(1.25rem - 3px);
+}
+
+.nav-item.active i {
+    color: var(--color-primary-darker);
 }
 
 .nav-item.logout {

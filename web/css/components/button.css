@@ -6,9 +6,9 @@
     color: var(--color-white);
     border: 0;
     border-radius: var(--radius-sm);
-    padding: var(--spacing-lg) 1.125rem;
-    font-size: var(--font-size-lg);
-    font-weight: 550;
+    padding: var(--spacing-md) 1rem; /* smaller */
+    font-size: var(--font-size-base); /* smaller */
+    font-weight: 600;
     cursor: pointer;
     transition: transform var(--transition-fast), background var(--transition-base);
     box-shadow: var(--shadow-button);
@@ -27,7 +27,11 @@
     color: #374151;
     border: 0;
     border-radius: var(--radius-sm);
-    padding: var(--spacing-md) 1.125rem;
+    padding: var(--spacing-sm) .875rem; /* smaller */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: .9375rem; /* slightly smaller */
     font-weight: 600;
     cursor: pointer;
 }
