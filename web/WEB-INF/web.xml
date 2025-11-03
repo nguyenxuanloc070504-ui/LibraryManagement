@@ -145,12 +145,16 @@
     </servlet-mapping>
 
     <servlet>
-        <servlet-name>SearchBooksServlet</servlet-name>
-        <servlet-class>controller.bookMgt.SearchBooksServlet</servlet-class>
+        <servlet-name>BookListServlet</servlet-name>
+        <servlet-class>controller.bookMgt.BookListServlet</servlet-class>
     </servlet>
     <servlet-mapping>
-        <servlet-name>SearchBooksServlet</servlet-name>
+        <servlet-name>BookListServlet</servlet-name>
         <url-pattern>/books</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>BookListServlet</servlet-name>
+        <url-pattern>/book/list</url-pattern>
     </servlet-mapping>
 
     <servlet>

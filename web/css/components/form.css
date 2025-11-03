@@ -226,3 +226,21 @@ textarea::-ms-input-placeholder {
     margin-left: var(--spacing-xs);
 }
 
+/* Search form layout - 4 columns with aligned inputs and buttons */
+.form-grid.search-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto auto;
+    gap: 1rem;
+    align-items: end;
+}
+
+/* Hidden label for button alignment */
+.label-hidden {
+    visibility: hidden;
+}
+
+/* Remove bottom margin for inline form fields */
+.form-field.inline {
+    margin-bottom: 0;
+}
+

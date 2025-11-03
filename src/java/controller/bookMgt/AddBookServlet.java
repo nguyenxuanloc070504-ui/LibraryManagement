@@ -4,17 +4,24 @@ import dal.BookDAO;
 import model.Book;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.Part;
 
 import java.io.IOException;
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.sql.Date;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 @WebServlet(name = "AddBookServlet", urlPatterns = {"/book/add"})
+@MultipartConfig
 public class AddBookServlet extends HttpServlet {
 
     @Override
@@ -23,7 +30,6 @@ public class AddBookServlet extends HttpServlet {
         BookDAO dao = new BookDAO();
         try {
             request.setAttribute("categories", dao.getAllCategories());
-            request.setAttribute("authors", dao.getAllAuthors());
             request.setAttribute("publishers", dao.getAllPublishers());
         } catch (SQLException e) {
             request.setAttribute("error", "Database error: " + e.getMessage());
@@ -48,12 +54,11 @@ public class AddBookServlet extends HttpServlet {
         String pagesParam = request.getParameter("pages");
         String description = request.getParameter("description");
         String shelfLocation = request.getParameter("shelf_location");
-        String coverImage = request.getParameter("cover_image");
-        String[] authorIdsParam = request.getParameterValues("author_ids");
         String quantityParam = request.getParameter("quantity");
         String acquisitionDateParam = request.getParameter("acquisition_date");
         String conditionStatus = request.getParameter("condition_status");
         String priceParam = request.getParameter("price");
+        String authorNamesParam = request.getParameter("author_names");
 
         // Validation
         java.util.Map<String, String> errors = new java.util.HashMap<>();
@@ -66,8 +71,8 @@ public class AddBookServlet extends HttpServlet {
         if (isEmpty(publisherIdParam)) {
             errors.put("publisher_id", "Publisher is required.");
         }
-        if (authorIdsParam == null || authorIdsParam.length == 0) {
-            errors.put("author_ids", "At least one author is required.");
+        if (isEmpty(authorNamesParam)) {
+            errors.put("author_names", "At least one author is required.");
         }
         if (isEmpty(quantityParam) || Integer.parseInt(quantityParam) <= 0) {
             errors.put("quantity", "Quantity must be at least 1.");
@@ -76,7 +81,6 @@ public class AddBookServlet extends HttpServlet {
         BookDAO dao = new BookDAO();
         try {
             request.setAttribute("categories", dao.getAllCategories());
-            request.setAttribute("authors", dao.getAllAuthors());
             request.setAttribute("publishers", dao.getAllPublishers());
         } catch (SQLException ignored) {}
 
@@ -98,12 +102,40 @@ public class AddBookServlet extends HttpServlet {
             book.setPages(isEmpty(pagesParam) ? null : Integer.parseInt(pagesParam));
             book.setDescription(isEmpty(description) ? null : description.trim());
             book.setShelfLocation(isEmpty(shelfLocation) ? null : shelfLocation.trim());
-            book.setCoverImage(isEmpty(coverImage) ? null : coverImage.trim());
-
-            List<Integer> authorIds = new ArrayList<>();
-            for (String authorIdStr : authorIdsParam) {
-                authorIds.add(Integer.parseInt(authorIdStr));
+            // Handle cover image upload
+            String savedCoverPath = null;
+            Part coverPart = null;
+            try { coverPart = request.getPart("cover_file"); } catch (IllegalStateException ignored) {}
+            if (coverPart != null && coverPart.getSize() > 0) {
+                String fileName = Path.of(getSubmittedFileName(coverPart)).getFileName().toString();
+                String ext = "";
+                int dot = fileName.lastIndexOf('.');
+                if (dot >= 0) ext = fileName.substring(dot);
+                String safeName = System.currentTimeMillis() + "_" + Math.abs(fileName.hashCode()) + ext;
+                String uploadDir = getServletContext().getRealPath("/uploads/covers");
+                if (uploadDir != null) {
+                    File dir = new File(uploadDir);
+                    if (!dir.exists()) dir.mkdirs();
+                    Path dest = Path.of(uploadDir, safeName);
+                    try {
+                        Files.copy(coverPart.getInputStream(), dest, StandardCopyOption.REPLACE_EXISTING);
+                        savedCoverPath = request.getContextPath() + "/uploads/covers/" + safeName;
+                    } catch (IOException ioe) {
+                        // log and ignore, do not block save
+                    }
+                }
             }
+            book.setCoverImage(savedCoverPath);
+
+            // Parse author names -> ensure IDs
+            List<String> authorNames = new ArrayList<>();
+            if (!isEmpty(authorNamesParam)) {
+                for (String part : authorNamesParam.split(",")) {
+                    String n = part.trim();
+                    if (!n.isEmpty()) authorNames.add(n);
+                }
+            }
+            List<Integer> authorIds = dao.ensureAuthorsByNames(authorNames);
 
             int quantity = Integer.parseInt(quantityParam);
             Date acquisitionDate = isEmpty(acquisitionDateParam) ? 
@@ -127,7 +159,6 @@ public class AddBookServlet extends HttpServlet {
 
         try {
             request.setAttribute("categories", dao.getAllCategories());
-            request.setAttribute("authors", dao.getAllAuthors());
             request.setAttribute("publishers", dao.getAllPublishers());
         } catch (SQLException ignored) {}
         request.getRequestDispatcher("/bookMgt/book-add.jsp").forward(request, response);
@@ -135,6 +166,19 @@ public class AddBookServlet extends HttpServlet {
 
     private boolean isEmpty(String s) {
         return s == null || s.trim().isEmpty();
+    }
+
+    private static String getSubmittedFileName(Part part) {
+        String cd = part.getHeader("content-disposition");
+        if (cd == null) return null;
+        for (String seg : cd.split(";")) {
+            String s = seg.trim();
+            if (s.startsWith("filename")) {
+                String fn = s.substring(s.indexOf('=') + 1).trim().replace("\"", "");
+                return fn;
+            }
+        }
+        return null;
     }
 }
 

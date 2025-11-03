@@ -32,6 +32,75 @@
 
         // Add any other global initialization here
         console.log('Library Management System initialized');
+
+        // Global confirm dialog
+        window.confirmDialog = function(options) {
+            const {
+                title = 'Confirm',
+                message = 'Are you sure?',
+                confirmText = 'Confirm',
+                cancelText = 'Cancel'
+            } = options || {};
+            return new Promise(resolve => {
+                const modal = document.createElement('div');
+                modal.className = 'modal open';
+                modal.innerHTML = `
+<div class="modal-overlay">
+  <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="confirm-title">
+    <div class="modal-header" id="confirm-title">${title}</div>
+    <div class="modal-body">${message}</div>
+    <div class="modal-actions">
+      <button class="btn-secondary inline-btn" data-cancel>${cancelText}</button>
+      <button class="btn-icon-text" data-confirm>${confirmText}</button>
+    </div>
+  </div>
+</div>`;
+                document.body.appendChild(modal);
+
+                const cleanup = (result) => {
+                    modal.classList.remove('open');
+                    setTimeout(() => modal.remove(), 0);
+                    document.body.style.overflow = '';
+                    resolve(result);
+                };
+
+                document.body.style.overflow = 'hidden';
+                modal.querySelector('[data-cancel]').addEventListener('click', () => cleanup(false));
+                modal.querySelector('[data-confirm]').addEventListener('click', () => cleanup(true));
+                modal.querySelector('.modal-overlay').addEventListener('click', (e) => {
+                    if (e.target.classList.contains('modal-overlay')) cleanup(false);
+                });
+                document.addEventListener('keydown', function esc(e) {
+                    if (e.key === 'Escape') {
+                        document.removeEventListener('keydown', esc);
+                        cleanup(false);
+                    }
+                });
+            });
+        };
+
+        // Delegate data-confirm across the app
+        document.addEventListener('click', async function(e) {
+            const target = e.target.closest('[data-confirm]');
+            if (!target) return;
+            const href = target.getAttribute('href');
+            const method = (target.getAttribute('data-method') || 'get').toLowerCase();
+            const message = target.getAttribute('data-confirm-message') || 'Are you sure?';
+            e.preventDefault();
+            const ok = await window.confirmDialog({ title: 'Please Confirm', message, confirmText: 'OK', cancelText: 'Cancel' });
+            if (!ok) return;
+            if (href) {
+                if (method === 'post') {
+                    const form = document.createElement('form');
+                    form.method = 'post';
+                    form.action = href;
+                    document.body.appendChild(form);
+                    form.submit();
+                } else {
+                    window.location.href = href;
+                }
+            }
+        });
     }
     
     // Initialize when DOM is ready

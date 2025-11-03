@@ -13,64 +13,15 @@
 </head>
 <body>
 <div class="layout">
-    <aside class="sidebar">
-        <div class="brand-small">Library Management System</div>
-        <nav class="nav">
-            <div class="nav-section">
-                <div class="nav-section-title">Main Menu</div>
-                <a href="<%= request.getContextPath() %>/dashboard" class="nav-item">
-                    <i class="fa-solid fa-chart-line"></i>
-                    <span>Dashboard</span>
-                </a>
-            </div>
-            <div class="nav-section">
-                <div class="nav-section-title">Member Management</div>
-                <a href="<%= request.getContextPath() %>/member/register" class="nav-item">
-                    <i class="fa-solid fa-user-plus"></i>
-                    <span>Register New Member</span>
-                </a>
-                <a href="<%= request.getContextPath() %>/member/update" class="nav-item">
-                    <i class="fa-solid fa-user-pen"></i>
-                    <span>Update Member</span>
-                </a>
-                <a href="<%= request.getContextPath() %>/member/renew" class="nav-item">
-                    <i class="fa-solid fa-rotate"></i>
-                    <span>Renew Membership</span>
-                </a>
-                <a href="<%= request.getContextPath() %>/member/lock-unlock" class="nav-item">
-                    <i class="fa-solid fa-user-lock"></i>
-                    <span>Lock/Unlock Account</span>
-                </a>
-            </div>
-            <div class="nav-section">
-                <div class="nav-section-title">Book Management</div>
-                <a href="<%= request.getContextPath() %>/book/add" class="nav-item">
-                    <i class="fa-solid fa-book-medical"></i>
-                    <span>Add New Book</span>
-                </a>
-                <a href="<%= request.getContextPath() %>/book/update" class="nav-item">
-                    <i class="fa-solid fa-pen-to-square"></i>
-                    <span>Update Book</span>
-                </a>
-                <a href="<%= request.getContextPath() %>/book/remove" class="nav-item">
-                    <i class="fa-solid fa-trash-can"></i>
-                    <span>Remove Book</span>
-                </a>
-                <a href="<%= request.getContextPath() %>/book/categories" class="nav-item active">
-                    <i class="fa-solid fa-layer-group"></i>
-                    <span>Manage Categories</span>
-                </a>
-            </div>
-        </nav>
-    </aside>
+    <jsp:include page="/components/sidebar.jsp">
+        <jsp:param name="activeItem" value="book-categories"/>
+    </jsp:include>
 
     <main class="content">
-        <header class="content-header">
-            <div>
-                <h1 class="page-title">Manage Book Categories</h1>
-                <p class="page-subtitle">Classify books by genre, author, publication year</p>
-            </div>
-        </header>
+        <jsp:include page="/components/header.jsp">
+            <jsp:param name="pageTitle" value="Manage Book Categories"/>
+            <jsp:param name="pageSubtitle" value="Classify books by genre, author, publication year"/>
+        </jsp:include>
 
         <div class="main-content">
             <% if (request.getAttribute("success") != null) { %>
@@ -117,8 +68,8 @@
                         </div>
                         
                         <div class="form-actions">
-                            <button class="btn-primary" type="submit" style="width:auto;" id="submit-btn">Add Category</button>
-                            <button class="btn-secondary" type="button" id="cancel-edit-btn" style="display:none;">Cancel Edit</button>
+                            <button class="btn-primary inline-btn" type="submit" id="submit-btn">Add Category</button>
+                            <button class="btn-secondary inline-btn" type="button" id="cancel-edit-btn" style="display:none;">Cancel Edit</button>
                         </div>
                     </form>
                 </section>
@@ -140,7 +91,7 @@
                                 </thead>
                                 <tbody>
                                     <% for (Category cat : categories) { %>
-                                        <tr>
+                                        <tr data-id="<%= cat.getCategoryId() %>" data-name="<%= cat.getCategoryName() != null ? cat.getCategoryName().replace("&", "&amp;").replace("\"", "&quot;") : "" %>" data-parent-id="<%= cat.getParentCategoryId() != null ? cat.getParentCategoryId() : 0 %>" data-description="<%= cat.getDescription() != null ? cat.getDescription().replace("&", "&amp;").replace("\"", "&quot;") : "" %>">
                                             <td><strong><%= cat.getCategoryName() %></strong></td>
                                             <td>
                                                 <% 
@@ -157,12 +108,11 @@
                                                 <%= parentName %>
                                             </td>
                                             <td>
-                                                <button type="button" class="btn-icon-text" onclick="editCategory(<%= cat.getCategoryId() %>, '<%= cat.getCategoryName().replace("'", "\\'") %>', <%= cat.getParentCategoryId() != null ? cat.getParentCategoryId() : 0 %>, '<%= cat.getDescription() != null ? cat.getDescription().replace("'", "\\'") : "" %>')" style="margin-right:0.5rem;">
+                                                <button type="button" class="btn-icon-text" onclick="editCategoryFromRow(this)" style="margin-right:0.5rem;">
                                                     <i class="fa-solid fa-edit"></i> Edit
                                                 </button>
                                                 <a href="<%= request.getContextPath() %>/book/categories?action=delete&id=<%= cat.getCategoryId() %>" 
-                                                   class="btn-icon-text" style="background: var(--color-error);"
-                                                   onclick="return confirm('Are you sure you want to delete this category?');">
+                                                   class="btn-icon-text danger" data-confirm data-method="get" data-confirm-message="Are you sure you want to delete this category?">
                                                     <i class="fa-solid fa-trash"></i> Delete
                                                 </a>
                                             </td>
@@ -178,6 +128,15 @@
     </main>
 </div>
 <script>
+function editCategoryFromRow(btn) {
+    var tr = btn.closest('tr');
+    if (!tr) return;
+    var id = parseInt(tr.getAttribute('data-id')) || 0;
+    var name = tr.getAttribute('data-name') || '';
+    var parentId = parseInt(tr.getAttribute('data-parent-id')) || 0;
+    var description = tr.getAttribute('data-description') || '';
+    editCategory(id, name, parentId, description);
+}
 function editCategory(id, name, parentId, description) {
     document.getElementById('form-action').value = 'update';
     document.getElementById('edit-category-id').value = id;

@@ -70,6 +70,7 @@
     padding: .5rem .75rem;
     background: var(--color-primary);
     color: var(--color-white);
+    border: 0; /* remove default button border */
     border-radius: var(--radius-sm);
     text-decoration: none;
     font-size: .875rem;
@@ -79,6 +80,30 @@
 
 .btn-icon-text:hover {
     background: var(--color-primary-dark);
+}
+
+/* Danger variants */
+.btn-danger {
+    background: var(--color-error);
+    color: var(--color-white);
+    border: 0;
+    border-radius: var(--radius-sm);
+    padding: var(--spacing-sm) .875rem;
+    font-size: .9375rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.btn-danger:hover {
+    background: #c53030; /* slightly darker red */
+}
+
+.btn-icon-text.danger {
+    background: var(--color-error);
+}
+
+.btn-icon-text.danger:hover {
+    background: #c53030;
 }
 
 .btn-social {
@@ -123,4 +148,19 @@
     gap: var(--spacing-lg);
     justify-content: flex-start;
     margin: var(--spacing-xl) 0 var(--spacing-lg);
+}
+
+/* Button modifiers for inline forms */
+.btn-primary.inline-btn,
+.btn-secondary.inline-btn {
+    width: auto;
+    white-space: nowrap;
+    padding: var(--spacing-md) 1rem;
+    font-size: var(--font-size-base);
+    line-height: 1.25;
+    min-height: 2.75rem;
+}
+
+.btn-secondary.no-underline {
+    text-decoration: none;
 }

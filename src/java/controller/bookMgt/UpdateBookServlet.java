@@ -4,16 +4,23 @@ import dal.BookDAO;
 import model.Book;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.Part;
 
 import java.io.IOException;
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 @WebServlet(name = "UpdateBookServlet", urlPatterns = {"/book/update"})
+@MultipartConfig
 public class UpdateBookServlet extends HttpServlet {
 
     @Override
@@ -31,13 +38,11 @@ public class UpdateBookServlet extends HttpServlet {
                 if (book != null) {
                     request.setAttribute("book", book);
                     request.setAttribute("categories", dao.getAllCategories());
-                    request.setAttribute("authors", dao.getAllAuthors());
                     request.setAttribute("publishers", dao.getAllPublishers());
                     request.getRequestDispatcher("/bookMgt/book-update.jsp").forward(request, response);
                 } else {
                     request.setAttribute("error", "Book not found.");
                     request.setAttribute("categories", dao.getAllCategories());
-                    request.setAttribute("authors", dao.getAllAuthors());
                     request.setAttribute("publishers", dao.getAllPublishers());
                     request.getRequestDispatcher("/bookMgt/book-update.jsp").forward(request, response);
                 }
@@ -101,8 +106,7 @@ public class UpdateBookServlet extends HttpServlet {
         String pagesParam = request.getParameter("pages");
         String description = request.getParameter("description");
         String shelfLocation = request.getParameter("shelf_location");
-        String coverImage = request.getParameter("cover_image");
-        String[] authorIdsParam = request.getParameterValues("author_ids");
+        String authorNamesParam = request.getParameter("author_names");
 
         // Validation
         java.util.Map<String, String> errors = new java.util.HashMap<>();
@@ -124,7 +128,6 @@ public class UpdateBookServlet extends HttpServlet {
                     request.setAttribute("book", book);
                 }
                 request.setAttribute("categories", dao.getAllCategories());
-                request.setAttribute("authors", dao.getAllAuthors());
                 request.setAttribute("publishers", dao.getAllPublishers());
             } catch (SQLException ignored) {}
             request.setAttribute("errors", errors);
@@ -144,14 +147,40 @@ public class UpdateBookServlet extends HttpServlet {
             book.setPages(isEmpty(pagesParam) ? null : Integer.parseInt(pagesParam));
             book.setDescription(isEmpty(description) ? null : description.trim());
             book.setShelfLocation(isEmpty(shelfLocation) ? null : shelfLocation.trim());
-            book.setCoverImage(isEmpty(coverImage) ? null : coverImage.trim());
-
-            List<Integer> authorIds = new ArrayList<>();
-            if (authorIdsParam != null) {
-                for (String authorIdStr : authorIdsParam) {
-                    authorIds.add(Integer.parseInt(authorIdStr));
+            // Handle optional cover upload; if none, keep existing by not overriding with null later
+            String savedCoverPath = null;
+            Part coverPart = null;
+            try { coverPart = request.getPart("cover_file"); } catch (IllegalStateException ignored) {}
+            if (coverPart != null && coverPart.getSize() > 0) {
+                String fileName = Path.of(getSubmittedFileName(coverPart)).getFileName().toString();
+                String ext = "";
+                int dot = fileName.lastIndexOf('.');
+                if (dot >= 0) ext = fileName.substring(dot);
+                String safeName = System.currentTimeMillis() + "_" + Math.abs(fileName.hashCode()) + ext;
+                String uploadDir = getServletContext().getRealPath("/uploads/covers");
+                if (uploadDir != null) {
+                    File dir = new File(uploadDir);
+                    if (!dir.exists()) dir.mkdirs();
+                    Path dest = Path.of(uploadDir, safeName);
+                    try {
+                        Files.copy(coverPart.getInputStream(), dest, StandardCopyOption.REPLACE_EXISTING);
+                        savedCoverPath = request.getContextPath() + "/uploads/covers/" + safeName;
+                    } catch (IOException ioe) {
+                        // ignore copy failure; do not block update
+                    }
                 }
             }
+            book.setCoverImage(savedCoverPath);
+
+            // Parse author names into IDs
+            List<String> authorNames = new ArrayList<>();
+            if (!isEmpty(authorNamesParam)) {
+                for (String part : authorNamesParam.split(",")) {
+                    String n = part.trim();
+                    if (!n.isEmpty()) authorNames.add(n);
+                }
+            }
+            List<Integer> authorIds = dao.ensureAuthorsByNames(authorNames);
 
             boolean success = dao.updateBook(bookId, book, authorIds);
             if (success) {
@@ -162,7 +191,6 @@ public class UpdateBookServlet extends HttpServlet {
                 request.setAttribute("error", "Failed to update book.");
             }
             request.setAttribute("categories", dao.getAllCategories());
-            request.setAttribute("authors", dao.getAllAuthors());
             request.setAttribute("publishers", dao.getAllPublishers());
             request.getRequestDispatcher("/bookMgt/book-update.jsp").forward(request, response);
         } catch (SQLException e) {
@@ -173,7 +201,6 @@ public class UpdateBookServlet extends HttpServlet {
                     request.setAttribute("book", book);
                 }
                 request.setAttribute("categories", dao.getAllCategories());
-                request.setAttribute("authors", dao.getAllAuthors());
                 request.setAttribute("publishers", dao.getAllPublishers());
             } catch (SQLException ignored) {}
             request.getRequestDispatcher("/bookMgt/book-update.jsp").forward(request, response);
@@ -184,6 +211,19 @@ public class UpdateBookServlet extends HttpServlet {
 
     private boolean isEmpty(String s) {
         return s == null || s.trim().isEmpty();
+    }
+
+    private static String getSubmittedFileName(Part part) {
+        String cd = part.getHeader("content-disposition");
+        if (cd == null) return null;
+        for (String seg : cd.split(";")) {
+            String s = seg.trim();
+            if (s.startsWith("filename")) {
+                String fn = s.substring(s.indexOf('=') + 1).trim().replace("\"", "");
+                return fn;
+            }
+        }
+        return null;
     }
 }
 

@@ -14,62 +14,15 @@
 </head>
 <body>
 <div class="layout">
-    <aside class="sidebar">
-        <div class="brand-small">Library Management System</div>
-        <nav class="nav">
-            <div class="nav-section">
-                <div class="nav-section-title">Reader Menu</div>
-                <a href="<%= request.getContextPath() %>/books" class="nav-item active">
-                    <i class="fa-solid fa-book"></i>
-                    <span>Search Books</span>
-                </a>
-                <% Integer currentUserId = (Integer) request.getSession().getAttribute("authUserId"); %>
-                <% if (currentUserId != null) { %>
-                    <a href="<%= request.getContextPath() %>/books/my-reservations" class="nav-item">
-                        <i class="fa-solid fa-bookmark"></i>
-                        <span>My Reservations</span>
-                    </a>
-                    <a href="<%= request.getContextPath() %>/personal/current-borrowings" class="nav-item">
-                        <i class="fa-solid fa-book-open"></i>
-                        <span>Current Borrowings</span>
-                    </a>
-                    <a href="<%= request.getContextPath() %>/personal/borrowing-history" class="nav-item">
-                        <i class="fa-solid fa-history"></i>
-                        <span>Borrowing History</span>
-                    </a>
-                    <a href="<%= request.getContextPath() %>/personal/notifications" class="nav-item">
-                        <i class="fa-solid fa-bell"></i>
-                        <span>Notifications</span>
-                    </a>
-                <% } %>
-            </div>
-            <% if (currentUserId != null) { %>
-                <div class="nav-section">
-                    <div class="nav-section-title">Account</div>
-                    <a href="<%= request.getContextPath() %>/logout" class="nav-item">
-                        <i class="fa-solid fa-sign-out-alt"></i>
-                        <span>Logout</span>
-                    </a>
-                </div>
-            <% } else { %>
-                <div class="nav-section">
-                    <div class="nav-section-title">Account</div>
-                    <a href="<%= request.getContextPath() %>/login" class="nav-item">
-                        <i class="fa-solid fa-sign-in-alt"></i>
-                        <span>Login</span>
-                    </a>
-                </div>
-            <% } %>
-        </nav>
-    </aside>
+    <jsp:include page="/components/sidebar.jsp">
+        <jsp:param name="activeItem" value="book-list"/>
+    </jsp:include>
 
     <main class="content">
-        <header class="content-header">
-            <div>
-                <h1 class="page-title">Search Books</h1>
-                <p class="page-subtitle">Look up books by title, author, genre, ISBN</p>
-            </div>
-        </header>
+        <jsp:include page="/components/header.jsp">
+            <jsp:param name="pageTitle" value="Book List"/>
+            <jsp:param name="pageSubtitle" value="Browse all books in the library"/>
+        </jsp:include>
 
         <div class="main-content">
             <% if (request.getAttribute("error") != null) { %>
@@ -79,16 +32,16 @@
             <!-- Search and Filter Form -->
             <section class="card">
                 <h2 class="form-section-title">Search & Filter</h2>
-                <form method="get" action="<%= request.getContextPath() %>/books" class="auth-form">
-                    <div class="form-grid two-col">
-                        <div class="form-field">
+                <form id="searchForm" method="get" action="<%= request.getContextPath() %>/book/list" class="auth-form">
+                    <div class="form-grid search-layout">
+                        <div class="form-field inline">
                             <label class="label-muted">Search</label>
                             <div class="input box">
-                                <input type="text" name="search" placeholder="Title, ISBN, or Author" 
+                                <input type="text" name="search" placeholder="Title, ISBN, or Author"
                                        value="<%= request.getParameter("search") != null ? request.getParameter("search") : "" %>" />
                             </div>
                         </div>
-                        <div class="form-field">
+                        <div class="form-field inline">
                             <label class="label-muted">Category</label>
                             <div class="input box">
                                 <select name="category">
@@ -104,97 +57,67 @@
                                 </select>
                             </div>
                         </div>
-                    </div>
-                    <div class="form-actions">
-                        <button class="btn-primary" type="submit" style="width:auto;">
-                            <i class="fa-solid fa-search"></i> Search
-                        </button>
-                        <a href="<%= request.getContextPath() %>/books" class="btn-secondary">Clear</a>
+                        <div class="form-field inline">
+                            <label class="label-muted label-hidden">.</label>
+                            <button class="btn-primary inline-btn" type="submit">
+                                <i class="fa-solid fa-search"></i> Search
+                            </button>
+                        </div>
+                        <div class="form-field inline">
+                            <label class="label-muted label-hidden">.</label>
+                            <a href="<%= request.getContextPath() %>/books" class="btn-secondary inline-btn no-underline">
+                                Clear
+                            </a>
+                        </div>
                     </div>
                 </form>
             </section>
 
-            <!-- Books List -->
+            <!-- Books Card Grid -->
             <% List<BookDAO.BookDetail> books = (List<BookDAO.BookDetail>) request.getAttribute("books"); %>
             <% String searchTerm = (String) request.getAttribute("searchTerm"); %>
             
-            <% if (books != null && !books.isEmpty()) { %>
-                <section class="card" style="margin-top: 1.5rem;">
-                    <h2 class="form-section-title">
-                        Search Results
-                        <% if (searchTerm != null) { %>
-                            for "<%= searchTerm %>"
+            <section class="card" style="margin-top: 1.5rem;">
+                <h2 class="form-section-title">
+                    <%= (searchTerm != null && !searchTerm.isEmpty()) ? ("Search Results for \"" + searchTerm + "\"") : "All Books" %>
+                    <% if (books != null) { %>(<%= books.size() %> books)<% } %>
+                </h2>
+                <% if (books != null && !books.isEmpty()) { %>
+                    <div class="grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;">
+                        <% for (BookDAO.BookDetail book : books) { %>
+                            <div class="card" style="padding:0;overflow:hidden;display:flex;flex-direction:column;">
+                                <div style="aspect-ratio:3/4;background:#f5f5f5;display:flex;align-items:center;justify-content:center;overflow:hidden;">
+                                    <% if (book.coverImage != null && !book.coverImage.trim().isEmpty()) { %>
+                                        <img src="<%= book.coverImage %>" alt="<%= book.title %>" style="width:100%;height:100%;object-fit:cover;" />
+                                    <% } else { %>
+                                        <i class="fa-solid fa-book" style="font-size:48px;color:#bbb;"></i>
+                                    <% } %>
+                                </div>
+                                <div style="padding:12px 14px;display:flex;flex-direction:column;gap:6px;">
+                                    <a href="<%= request.getContextPath() %>/books/detail?id=<%= book.bookId %>"
+                                       style="font-weight:600;line-height:1.3;min-height:2.6em;color:inherit;text-decoration:none;cursor:pointer;"
+                                       onmouseover="this.style.color='#2563eb'"
+                                       onmouseout="this.style.color='inherit'">
+                                        <%= book.title %>
+                                    </a>
+                                    <div class="text-muted" style="font-size:0.9rem;">
+                                        <%= book.categoryName != null ? book.categoryName : "Unknown Category" %>
+                                    </div>
+                                    <div style="margin-top:4px;">
+                                        <% if (book.availableCopies > 0) { %>
+                                            <span class="status-badge status-active"><%= book.availableCopies %> available</span>
+                                        <% } else { %>
+                                            <span class="status-badge status-locked">Unavailable</span>
+                                        <% } %>
+                                    </div>
+                                </div>
+                            </div>
                         <% } %>
-                        (<%= books.size() %> books)
-                    </h2>
-                    <div class="table-container">
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>Title</th>
-                                    <th>ISBN</th>
-                                    <th>Authors</th>
-                                    <th>Category</th>
-                                    <th>Available</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <% 
-                                    ReservationDAO reservationDAO = new ReservationDAO();
-                                    for (BookDAO.BookDetail book : books) {
-                                        boolean hasReservation = false;
-                                        if (currentUserId != null) {
-                                            try {
-                                                hasReservation = reservationDAO.hasActiveReservation(book.bookId, currentUserId);
-                                            } catch (Exception ignored) {}
-                                        }
-                                %>
-                                    <tr>
-                                        <td><strong><%= book.title %></strong></td>
-                                        <td><%= book.isbn != null ? book.isbn : "N/A" %></td>
-                                        <td>
-                                            <% if (book.authorNames != null && !book.authorNames.isEmpty()) { %>
-                                                <%= String.join(", ", book.authorNames) %>
-                                            <% } else { %>
-                                                N/A
-                                            <% } %>
-                                        </td>
-                                        <td><%= book.categoryName != null ? book.categoryName : "N/A" %></td>
-                                        <td>
-                                            <% if (book.availableCopies > 0) { %>
-                                                <span class="status-badge status-active"><%= book.availableCopies %> available</span>
-                                            <% } else { %>
-                                                <span class="status-badge status-locked">Unavailable</span>
-                                            <% } %>
-                                        </td>
-                                        <td>
-                                            <a href="<%= request.getContextPath() %>/books/detail?id=<%= book.bookId %>" class="btn-icon-text">
-                                                <i class="fa-solid fa-eye"></i> View Details
-                                            </a>
-                                            <% if (hasReservation) { %>
-                                                <span class="text-muted" style="margin-left: 0.5rem;">
-                                                    <i class="fa-solid fa-bookmark"></i> Reserved
-                                                </span>
-                                            <% } %>
-                                        </td>
-                                    </tr>
-                                <% } 
-                                    reservationDAO.close();
-                                %>
-                            </tbody>
-                        </table>
                     </div>
-                </section>
-            <% } else if (searchTerm != null) { %>
-                <section class="card" style="margin-top: 1.5rem;">
-                    <p>No books found matching your search.</p>
-                </section>
-            <% } else { %>
-                <section class="card" style="margin-top: 1.5rem;">
-                    <p>Enter a search term to find books.</p>
-                </section>
-            <% } %>
+                <% } else { %>
+                    <p>No books found.</p>
+                <% } %>
+            </section>
         </div>
     </main>
 </div>

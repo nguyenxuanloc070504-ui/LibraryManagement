@@ -8,6 +8,8 @@ import model.Publisher;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 public class BookDAO extends DBContext {
 
@@ -49,6 +51,50 @@ public class BookDAO extends DBContext {
             }
         }
         return authors;
+    }
+
+    /**
+     * Ensure authors exist by names and return their IDs (in input order, de-duplicated)
+     */
+    public List<Integer> ensureAuthorsByNames(List<String> authorNames) throws SQLException {
+        List<Integer> result = new ArrayList<>();
+        if (authorNames == null || authorNames.isEmpty()) return result;
+        Set<String> seen = new LinkedHashSet<>();
+        for (String name : authorNames) {
+            if (name == null) continue;
+            String trimmed = name.trim();
+            if (trimmed.isEmpty() || !seen.add(trimmed.toLowerCase())) continue;
+            Integer id = findAuthorIdByName(trimmed);
+            if (id == null) {
+                id = insertAuthor(trimmed);
+            }
+            if (id != null) result.add(id);
+        }
+        return result;
+    }
+
+    private Integer findAuthorIdByName(String name) throws SQLException {
+        String sql = "SELECT author_id FROM Authors WHERE LOWER(author_name) = LOWER(?)";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, name);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return rs.getInt(1);
+            }
+        }
+        return null;
+    }
+
+    private Integer insertAuthor(String name) throws SQLException {
+        String sql = "INSERT INTO Authors (author_name) VALUES (?)";
+        try (PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            ps.setString(1, name);
+            ps.executeUpdate();
+            try (ResultSet gen = ps.getGeneratedKeys()) {
+                if (gen.next()) return gen.getInt(1);
+            }
+        }
+        // In case of race condition where another insert happened, try to re-query
+        return findAuthorIdByName(name);
     }
 
     /**
@@ -265,7 +311,9 @@ public class BookDAO extends DBContext {
     public List<BookDetail> searchBooks(String searchTerm) throws SQLException {
         List<BookDetail> results = new ArrayList<>();
         String sql = "SELECT DISTINCT b.book_id, b.isbn, b.title, b.category_id, c.category_name, " +
-                     "b.publisher_id, p.publisher_name, b.publication_year, b.shelf_location " +
+                     "b.publisher_id, p.publisher_name, b.publication_year, b.shelf_location, b.cover_image, " +
+                     "(SELECT COUNT(*) FROM Book_Copies bc WHERE bc.book_id = b.book_id) AS total_copies, " +
+                     "(SELECT COUNT(*) FROM Book_Copies bc WHERE bc.book_id = b.book_id AND bc.availability_status = 'available') AS available_copies " +
                      "FROM Books b " +
                      "LEFT JOIN Categories c ON b.category_id = c.category_id " +
                      "LEFT JOIN Publishers p ON b.publisher_id = p.publisher_id " +
@@ -290,8 +338,46 @@ public class BookDAO extends DBContext {
                     detail.publisherName = rs.getString("publisher_name");
                     detail.publicationYear = rs.getObject("publication_year") != null ? rs.getInt("publication_year") : null;
                     detail.shelfLocation = rs.getString("shelf_location");
+                    detail.coverImage = rs.getString("cover_image");
+                    detail.totalCopies = rs.getInt("total_copies");
+                    detail.availableCopies = rs.getInt("available_copies");
                     results.add(detail);
                 }
+            }
+        }
+        return results;
+    }
+
+    /**
+     * Get all books with basic details for listing
+     */
+    public List<BookDetail> getAllBooks() throws SQLException {
+        List<BookDetail> results = new ArrayList<>();
+        String sql = "SELECT b.book_id, b.isbn, b.title, b.category_id, c.category_name, " +
+                     "b.publisher_id, p.publisher_name, b.publication_year, b.shelf_location, b.cover_image, " +
+                     "(SELECT COUNT(*) FROM Book_Copies bc WHERE bc.book_id = b.book_id) AS total_copies, " +
+                     "(SELECT COUNT(*) FROM Book_Copies bc WHERE bc.book_id = b.book_id AND bc.availability_status = 'available') AS available_copies " +
+                     "FROM Books b " +
+                     "LEFT JOIN Categories c ON b.category_id = c.category_id " +
+                     "LEFT JOIN Publishers p ON b.publisher_id = p.publisher_id " +
+                     "ORDER BY b.title";
+        try (PreparedStatement ps = connection.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                BookDetail detail = new BookDetail();
+                detail.bookId = rs.getInt("book_id");
+                detail.isbn = rs.getString("isbn");
+                detail.title = rs.getString("title");
+                detail.categoryId = rs.getInt("category_id");
+                detail.categoryName = rs.getString("category_name");
+                detail.publisherId = rs.getInt("publisher_id");
+                detail.publisherName = rs.getString("publisher_name");
+                detail.publicationYear = rs.getObject("publication_year") != null ? rs.getInt("publication_year") : null;
+                detail.shelfLocation = rs.getString("shelf_location");
+                detail.coverImage = rs.getString("cover_image");
+                detail.totalCopies = rs.getInt("total_copies");
+                detail.availableCopies = rs.getInt("available_copies");
+                results.add(detail);
             }
         }
         return results;

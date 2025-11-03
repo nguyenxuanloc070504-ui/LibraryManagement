@@ -1,5 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="dal.BookDAO" %>
+<%@ page import="java.util.List" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,64 +12,15 @@
 </head>
 <body>
 <div class="layout">
-    <aside class="sidebar">
-        <div class="brand-small">Library Management System</div>
-        <nav class="nav">
-            <div class="nav-section">
-                <div class="nav-section-title">Main Menu</div>
-                <a href="<%= request.getContextPath() %>/dashboard" class="nav-item">
-                    <i class="fa-solid fa-chart-line"></i>
-                    <span>Dashboard</span>
-                </a>
-            </div>
-            <div class="nav-section">
-                <div class="nav-section-title">Member Management</div>
-                <a href="<%= request.getContextPath() %>/member/register" class="nav-item">
-                    <i class="fa-solid fa-user-plus"></i>
-                    <span>Register New Member</span>
-                </a>
-                <a href="<%= request.getContextPath() %>/member/update" class="nav-item">
-                    <i class="fa-solid fa-user-pen"></i>
-                    <span>Update Member</span>
-                </a>
-                <a href="<%= request.getContextPath() %>/member/renew" class="nav-item">
-                    <i class="fa-solid fa-rotate"></i>
-                    <span>Renew Membership</span>
-                </a>
-                <a href="<%= request.getContextPath() %>/member/lock-unlock" class="nav-item">
-                    <i class="fa-solid fa-user-lock"></i>
-                    <span>Lock/Unlock Account</span>
-                </a>
-            </div>
-            <div class="nav-section">
-                <div class="nav-section-title">Book Management</div>
-                <a href="<%= request.getContextPath() %>/book/add" class="nav-item">
-                    <i class="fa-solid fa-book-medical"></i>
-                    <span>Add New Book</span>
-                </a>
-                <a href="<%= request.getContextPath() %>/book/update" class="nav-item">
-                    <i class="fa-solid fa-pen-to-square"></i>
-                    <span>Update Book</span>
-                </a>
-                <a href="<%= request.getContextPath() %>/book/remove" class="nav-item active">
-                    <i class="fa-solid fa-trash-can"></i>
-                    <span>Remove Book</span>
-                </a>
-                <a href="<%= request.getContextPath() %>/book/categories" class="nav-item">
-                    <i class="fa-solid fa-layer-group"></i>
-                    <span>Manage Categories</span>
-                </a>
-            </div>
-        </nav>
-    </aside>
+    <jsp:include page="/components/sidebar.jsp">
+        <jsp:param name="activeItem" value="book-remove"/>
+    </jsp:include>
 
     <main class="content">
-        <header class="content-header">
-            <div>
-                <h1 class="page-title">Remove Book from System</h1>
-                <p class="page-subtitle">Delete damaged or obsolete books</p>
-            </div>
-        </header>
+        <jsp:include page="/components/header.jsp">
+            <jsp:param name="pageTitle" value="Remove Book from System"/>
+            <jsp:param name="pageSubtitle" value="Delete damaged or obsolete books"/>
+        </jsp:include>
 
         <div class="main-content">
             <% if (request.getAttribute("success") != null) { %>

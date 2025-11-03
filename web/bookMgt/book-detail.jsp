@@ -1,6 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="dal.BookDAO" %>
 <%@ page import="dal.ReservationDAO" %>
+<% Integer currentUserId = (Integer) request.getSession().getAttribute("authUserId"); %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -12,62 +13,15 @@
 </head>
 <body>
 <div class="layout">
-    <aside class="sidebar">
-        <div class="brand-small">Library Management System</div>
-        <nav class="nav">
-            <div class="nav-section">
-                <div class="nav-section-title">Reader Menu</div>
-                <a href="<%= request.getContextPath() %>/books" class="nav-item">
-                    <i class="fa-solid fa-book"></i>
-                    <span>Search Books</span>
-                </a>
-                <% Integer currentUserId = (Integer) request.getSession().getAttribute("authUserId"); %>
-                <% if (currentUserId != null) { %>
-                    <a href="<%= request.getContextPath() %>/books/my-reservations" class="nav-item">
-                        <i class="fa-solid fa-bookmark"></i>
-                        <span>My Reservations</span>
-                    </a>
-                    <a href="<%= request.getContextPath() %>/personal/current-borrowings" class="nav-item">
-                        <i class="fa-solid fa-book-open"></i>
-                        <span>Current Borrowings</span>
-                    </a>
-                    <a href="<%= request.getContextPath() %>/personal/borrowing-history" class="nav-item">
-                        <i class="fa-solid fa-history"></i>
-                        <span>Borrowing History</span>
-                    </a>
-                    <a href="<%= request.getContextPath() %>/personal/notifications" class="nav-item">
-                        <i class="fa-solid fa-bell"></i>
-                        <span>Notifications</span>
-                    </a>
-                <% } %>
-            </div>
-            <% if (currentUserId != null) { %>
-                <div class="nav-section">
-                    <div class="nav-section-title">Account</div>
-                    <a href="<%= request.getContextPath() %>/logout" class="nav-item">
-                        <i class="fa-solid fa-sign-out-alt"></i>
-                        <span>Logout</span>
-                    </a>
-                </div>
-            <% } else { %>
-                <div class="nav-section">
-                    <div class="nav-section-title">Account</div>
-                    <a href="<%= request.getContextPath() %>/login" class="nav-item">
-                        <i class="fa-solid fa-sign-in-alt"></i>
-                        <span>Login</span>
-                    </a>
-                </div>
-            <% } %>
-        </nav>
-    </aside>
+    <jsp:include page="/components/sidebar.jsp">
+        <jsp:param name="activeItem" value="book-list"/>
+    </jsp:include>
 
     <main class="content">
-        <header class="content-header">
-            <div>
-                <h1 class="page-title">Book Details</h1>
-                <p class="page-subtitle">View complete book information, availability status, location</p>
-            </div>
-        </header>
+        <jsp:include page="/components/header.jsp">
+            <jsp:param name="pageTitle" value="Book Details"/>
+            <jsp:param name="pageSubtitle" value="View complete book information, availability status, location"/>
+        </jsp:include>
 
         <div class="main-content">
             <% 
@@ -186,11 +140,9 @@
                                             </button>
                                         </form>
                                     <% } %>
-                                <% } else { %>
-                                    <p class="text-muted">Please <a href="<%= request.getContextPath() %>/login">login</a> to reserve this book.</p>
                                 <% } %>
-                                <a href="<%= request.getContextPath() %>/books" class="btn-secondary">
-                                    <i class="fa-solid fa-arrow-left"></i> Back to Search
+                                <a href="<%= request.getContextPath() %>/books" class="btn-secondary inline-btn no-underline">
+                                    <i class="fa-solid fa-arrow-left"></i>Back to List
                                 </a>
                             </div>
                         </div>
@@ -199,7 +151,7 @@
             <% } else { %>
                 <section class="card">
                     <p>Book not found.</p>
-                    <a href="<%= request.getContextPath() %>/books" class="btn-secondary">Back to Search</a>
+                    <a href="<%= request.getContextPath() %>/books" class="btn-secondary inline-btn no-underline">Back to Search</a>
                 </section>
             <% } %>
         </div>
