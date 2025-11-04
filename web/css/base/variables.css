@@ -15,10 +15,20 @@
     --color-border-light: #d1d5db;
     
     /* Colors - Semantic */
+    --color-success: #10b981;
+    --color-warning: #f59e0b;
+    --color-info: #0ea5e9;
     --color-error: #dc2626;
     --color-error-bg: #fee2e2;
     --color-error-border: #fecaca;
     --color-error-text: #b91c1c;
+    --color-bg-secondary: #f9fafb;
+
+    /* Alert Colors */
+    --danger: #ef4444;
+    --danger-light: rgba(239, 68, 68, 0.05);
+    --warning-light: rgba(245, 158, 11, 0.05);
+    --info-light: rgba(14, 165, 233, 0.05);
     
     /* Colors - Social */
     --color-facebook: #3b5998;
