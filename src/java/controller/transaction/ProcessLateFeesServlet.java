@@ -44,7 +44,6 @@ public class ProcessLateFeesServlet extends HttpServlet {
             } else {
                 // Show fines list
                 request.setAttribute("fines", dao.getAllFines(paymentStatus));
-                request.setAttribute("overdueBooks", dao.getOverdueBooks());
                 request.getRequestDispatcher("/transaction/process-fines.jsp").forward(request, response);
             }
         } catch (SQLException e) {
@@ -124,7 +123,6 @@ public class ProcessLateFeesServlet extends HttpServlet {
                 request.setAttribute("error", "Failed to update fine payment.");
             }
             request.setAttribute("fines", dao.getAllFines(null));
-            request.setAttribute("overdueBooks", dao.getOverdueBooks());
         } catch (SQLException e) {
             request.setAttribute("error", "Database error: " + e.getMessage());
             try {

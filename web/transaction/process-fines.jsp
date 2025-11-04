@@ -12,83 +12,15 @@
 </head>
 <body>
 <div class="layout">
-    <aside class="sidebar">
-        <div class="brand-small">Library Management System</div>
-        <nav class="nav">
-            <div class="nav-section">
-                <div class="nav-section-title">Main Menu</div>
-                <a href="<%= request.getContextPath() %>/dashboard" class="nav-item">
-                    <i class="fa-solid fa-chart-line"></i>
-                    <span>Dashboard</span>
-                </a>
-            </div>
-            <div class="nav-section">
-                <div class="nav-section-title">Member Management</div>
-                <a href="<%= request.getContextPath() %>/member/register" class="nav-item">
-                    <i class="fa-solid fa-user-plus"></i>
-                    <span>Register New Member</span>
-                </a>
-                <a href="<%= request.getContextPath() %>/member/update" class="nav-item">
-                    <i class="fa-solid fa-user-pen"></i>
-                    <span>Update Member</span>
-                </a>
-                <a href="<%= request.getContextPath() %>/member/renew" class="nav-item">
-                    <i class="fa-solid fa-rotate"></i>
-                    <span>Renew Membership</span>
-                </a>
-                <a href="<%= request.getContextPath() %>/member/lock-unlock" class="nav-item">
-                    <i class="fa-solid fa-user-lock"></i>
-                    <span>Lock/Unlock Account</span>
-                </a>
-            </div>
-            <div class="nav-section">
-                <div class="nav-section-title">Book Management</div>
-                <a href="<%= request.getContextPath() %>/book/add" class="nav-item">
-                    <i class="fa-solid fa-book-medical"></i>
-                    <span>Add New Book</span>
-                </a>
-                <a href="<%= request.getContextPath() %>/book/update" class="nav-item">
-                    <i class="fa-solid fa-pen-to-square"></i>
-                    <span>Update Book</span>
-                </a>
-                <a href="<%= request.getContextPath() %>/book/remove" class="nav-item">
-                    <i class="fa-solid fa-trash-can"></i>
-                    <span>Remove Book</span>
-                </a>
-                <a href="<%= request.getContextPath() %>/book/categories" class="nav-item">
-                    <i class="fa-solid fa-layer-group"></i>
-                    <span>Manage Categories</span>
-                </a>
-            </div>
-            <div class="nav-section">
-                <div class="nav-section-title">Borrowing & Returning</div>
-                <a href="<%= request.getContextPath() %>/transaction/lend" class="nav-item">
-                    <i class="fa-solid fa-hand-holding"></i>
-                    <span>Lend Book</span>
-                </a>
-                <a href="<%= request.getContextPath() %>/transaction/return" class="nav-item">
-                    <i class="fa-solid fa-arrow-rotate-left"></i>
-                    <span>Return Book</span>
-                </a>
-                <a href="<%= request.getContextPath() %>/transaction/renew" class="nav-item">
-                    <i class="fa-solid fa-rotate-right"></i>
-                    <span>Renew Book</span>
-                </a>
-                <a href="<%= request.getContextPath() %>/transaction/fines" class="nav-item active">
-                    <i class="fa-solid fa-dollar-sign"></i>
-                    <span>Process Late Fees</span>
-                </a>
-            </div>
-        </nav>
-    </aside>
+    <jsp:include page="/components/sidebar.jsp">
+        <jsp:param name="activeItem" value="transaction-fines"/>
+    </jsp:include>
 
     <main class="content">
-        <header class="content-header">
-            <div>
-                <h1 class="page-title">Process Late Fees</h1>
-                <p class="page-subtitle">Calculate and collect fines when members return books overdue</p>
-            </div>
-        </header>
+        <jsp:include page="/components/header.jsp">
+            <jsp:param name="pageTitle" value="Process Late Fees"/>
+            <jsp:param name="pageSubtitle" value="Calculate and collect fines when members return books overdue"/>
+        </jsp:include>
 
         <div class="main-content">
             <% if (request.getAttribute("success") != null) { %>
@@ -101,58 +33,24 @@
             <% TransactionDAO.FineDetail fine = (TransactionDAO.FineDetail) request.getAttribute("fine"); %>
             <% String paymentStatus = request.getParameter("status"); %>
             <% List<TransactionDAO.FineDetail> fines = (List<TransactionDAO.FineDetail>) request.getAttribute("fines"); %>
-            <% List<TransactionDAO.BorrowingDetail> overdueBooks = (List<TransactionDAO.BorrowingDetail>) request.getAttribute("overdueBooks"); %>
 
             <% if (fine == null) { %>
-                <!-- Filter Tabs -->
-                <div style="margin-bottom: 1.5rem; display: flex; gap: 0.5rem; border-bottom: 1px solid var(--color-border);">
-                    <a href="<%= request.getContextPath() %>/transaction/fines" 
-                       class="btn-secondary <%= paymentStatus == null ? "active" : "" %>" 
-                       style="border-radius: 0; border-bottom: 2px solid <%= paymentStatus == null ? "var(--color-primary)" : "transparent" %>">
-                        All Fines
-                    </a>
-                    <a href="<%= request.getContextPath() %>/transaction/fines?status=unpaid" 
-                       class="btn-secondary <%= "unpaid".equals(paymentStatus) ? "active" : "" %>"
-                       style="border-radius: 0; border-bottom: 2px solid <%= "unpaid".equals(paymentStatus) ? "var(--color-primary)" : "transparent" %>">
-                        Unpaid
-                    </a>
-                    <a href="<%= request.getContextPath() %>/transaction/fines?status=paid" 
-                       class="btn-secondary <%= "paid".equals(paymentStatus) ? "active" : "" %>"
-                       style="border-radius: 0; border-bottom: 2px solid <%= "paid".equals(paymentStatus) ? "var(--color-primary)" : "transparent" %>">
-                        Paid
-                    </a>
-                </div>
-
-                <!-- Overdue Books (for generating fines) -->
-                <% if (overdueBooks != null && !overdueBooks.isEmpty()) { %>
-                    <section class="card" style="margin-bottom: 1.5rem;">
-                        <h2 class="form-section-title">Overdue Books (Fines will be generated on return)</h2>
-                        <div class="table-container">
-                            <table class="data-table">
-                                <thead>
-                                    <tr>
-                                        <th>Member</th>
-                                        <th>Book</th>
-                                        <th>Due Date</th>
-                                        <th>Days Overdue</th>
-                                        <th>Calculated Fine</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <% for (TransactionDAO.BorrowingDetail b : overdueBooks) { %>
-                                        <tr>
-                                            <td><%= b.memberName %></td>
-                                            <td><%= b.bookTitle %></td>
-                                            <td><%= b.dueDate %></td>
-                                            <td><span class="status-badge status-locked"><%= b.daysOverdue %> days</span></td>
-                                            <td><strong style="color: var(--color-error);">$<%= b.potentialFine %></strong></td>
-                                        </tr>
-                                    <% } %>
-                                </tbody>
-                            </table>
+                <!-- Filter Dropdown -->
+                <section class="card" style="margin-bottom: 1.5rem;">
+                    <form method="get" action="<%= request.getContextPath() %>/transaction/fines" style="margin: 0;">
+                        <div class="form-field" style="margin: 0;">
+                            <label class="label-muted">Filter by Status</label>
+                            <div class="input box">
+                                <select name="status" onchange="this.form.submit()">
+                                    <option value="" <%= paymentStatus == null || paymentStatus.isEmpty() ? "selected" : "" %>>All Fines</option>
+                                    <option value="unpaid" <%= "unpaid".equals(paymentStatus) ? "selected" : "" %>>Unpaid</option>
+                                    <option value="paid" <%= "paid".equals(paymentStatus) ? "selected" : "" %>>Paid</option>
+                                    <option value="waived" <%= "waived".equals(paymentStatus) ? "selected" : "" %>>Waived</option>
+                                </select>
+                            </div>
                         </div>
-                    </section>
-                <% } %>
+                    </form>
+                </section>
 
                 <!-- Fines List -->
                 <section class="card">

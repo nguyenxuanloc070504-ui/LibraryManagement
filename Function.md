@@ -50,7 +50,7 @@ FEATURE 5: LATE FEES MANAGEMENT (Librarian)
 - Generate Fine Reports - View and export fine collection reports
 
 
-FEATURE 6: REPORTS & STATISTICS (Librarian)
+FEATURE 6: REPORTS & STATISTICS (Librarian) - Done
 - Generate Statistical Reports - Statistics on borrowed books, active members, popular books
 - Manage Overdue Books - View list of overdue books, send reminders to members
 - View Dashboard Analytics - Real-time overview of library operations (total books, current borrows, overdue count, etc.)

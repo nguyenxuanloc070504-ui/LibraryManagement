@@ -98,6 +98,10 @@
                 <i class="fa-solid fa-chart-pie"></i>
                 <span>Reports & Statistics</span>
             </a>
+            <a href="<%= contextPath %>/reports/fine-reports" class="nav-item <%= "reports-fine-reports".equals(activeItem) ? "active" : "" %>">
+                <i class="fa-solid fa-file-invoice-dollar"></i>
+                <span>Fine Reports</span>
+            </a>
             <a href="<%= contextPath %>/reports/overdue-books" class="nav-item <%= "reports-overdue".equals(activeItem) ? "active" : "" %>">
                 <i class="fa-solid fa-clock"></i>
                 <span>Overdue Management</span>

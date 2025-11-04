@@ -291,5 +291,48 @@ public class ReportDAO extends DBContext {
         }
         return 0;
     }
+
+    /**
+     * Send individual overdue reminder to a specific member
+     */
+    public boolean sendIndividualOverdueReminder(int userId, int transactionId) throws SQLException {
+        String checkQuery = "SELECT bt.transaction_id, bt.user_id, bt.due_date, b.title " +
+                           "FROM Borrowing_Transactions bt " +
+                           "JOIN Book_Copies bc ON bt.copy_id = bc.copy_id " +
+                           "JOIN Books b ON bc.book_id = b.book_id " +
+                           "WHERE bt.transaction_id = ? AND bt.user_id = ? " +
+                           "AND bt.transaction_status = 'overdue'";
+
+        String insertQuery = "INSERT INTO Notifications (user_id, notification_type, title, message, reference_id) " +
+                            "VALUES (?, 'overdue', 'Overdue Book Reminder', ?, ?)";
+
+        try (PreparedStatement ps = connection.prepareStatement(checkQuery)) {
+            ps.setInt(1, transactionId);
+            ps.setInt(2, userId);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    String bookTitle = rs.getString("title");
+                    java.sql.Date dueDate = rs.getDate("due_date");
+
+                    String message = String.format(
+                        "Your borrowed book \"%s\" was due on %s and is now overdue. " +
+                        "Please return it as soon as possible to avoid additional fines.",
+                        bookTitle, dueDate
+                    );
+
+                    try (PreparedStatement insertPs = connection.prepareStatement(insertQuery)) {
+                        insertPs.setInt(1, userId);
+                        insertPs.setString(2, message);
+                        insertPs.setInt(3, transactionId);
+
+                        int rowsAffected = insertPs.executeUpdate();
+                        return rowsAffected > 0;
+                    }
+                }
+            }
+        }
+        return false;
+    }
 }
 

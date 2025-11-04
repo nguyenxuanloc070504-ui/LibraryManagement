@@ -762,5 +762,188 @@ public class TransactionDAO extends DBContext {
             return ps.executeUpdate() > 0;
         }
     }
+
+    /**
+     * Get fine summary statistics
+     */
+    public static class FineSummary {
+        public int totalFines;
+        public java.math.BigDecimal totalAmount;
+        public int unpaidCount;
+        public java.math.BigDecimal unpaidAmount;
+        public int paidCount;
+        public java.math.BigDecimal paidAmount;
+        public int waivedCount;
+        public java.math.BigDecimal waivedAmount;
+    }
+
+    public FineSummary getFineSummary(java.sql.Date startDate, java.sql.Date endDate) throws SQLException {
+        FineSummary summary = new FineSummary();
+        String sql = "SELECT " +
+                     "COUNT(*) as total_fines, " +
+                     "SUM(fine_amount) as total_amount, " +
+                     "SUM(CASE WHEN payment_status = 'unpaid' THEN 1 ELSE 0 END) as unpaid_count, " +
+                     "SUM(CASE WHEN payment_status = 'unpaid' THEN fine_amount ELSE 0 END) as unpaid_amount, " +
+                     "SUM(CASE WHEN payment_status = 'paid' THEN 1 ELSE 0 END) as paid_count, " +
+                     "SUM(CASE WHEN payment_status = 'paid' THEN fine_amount ELSE 0 END) as paid_amount, " +
+                     "SUM(CASE WHEN payment_status = 'waived' THEN 1 ELSE 0 END) as waived_count, " +
+                     "SUM(CASE WHEN payment_status = 'waived' THEN fine_amount ELSE 0 END) as waived_amount " +
+                     "FROM Fines " +
+                     "WHERE fine_date BETWEEN ? AND ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setDate(1, startDate);
+            ps.setDate(2, endDate);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    summary.totalFines = rs.getInt("total_fines");
+                    summary.totalAmount = rs.getBigDecimal("total_amount");
+                    if (summary.totalAmount == null) summary.totalAmount = java.math.BigDecimal.ZERO;
+                    summary.unpaidCount = rs.getInt("unpaid_count");
+                    summary.unpaidAmount = rs.getBigDecimal("unpaid_amount");
+                    if (summary.unpaidAmount == null) summary.unpaidAmount = java.math.BigDecimal.ZERO;
+                    summary.paidCount = rs.getInt("paid_count");
+                    summary.paidAmount = rs.getBigDecimal("paid_amount");
+                    if (summary.paidAmount == null) summary.paidAmount = java.math.BigDecimal.ZERO;
+                    summary.waivedCount = rs.getInt("waived_count");
+                    summary.waivedAmount = rs.getBigDecimal("waived_amount");
+                    if (summary.waivedAmount == null) summary.waivedAmount = java.math.BigDecimal.ZERO;
+                }
+            }
+        }
+        return summary;
+    }
+
+    /**
+     * Get fines with advanced filtering
+     */
+    public List<FineDetail> getFinesWithFilter(String paymentStatus, java.sql.Date startDate,
+                                               java.sql.Date endDate, String searchTerm) throws SQLException {
+        List<FineDetail> results = new ArrayList<>();
+        StringBuilder sql = new StringBuilder(
+            "SELECT f.fine_id, f.transaction_id, f.user_id, u.full_name as member_name, " +
+            "u.email as member_email, b.title as book_title, f.fine_amount, " +
+            "f.fine_reason, f.days_overdue, f.fine_date, f.payment_status, " +
+            "f.payment_date, f.payment_method, f.notes " +
+            "FROM Fines f " +
+            "JOIN Users u ON f.user_id = u.user_id " +
+            "JOIN Borrowing_Transactions bt ON f.transaction_id = bt.transaction_id " +
+            "JOIN Book_Copies bc ON bt.copy_id = bc.copy_id " +
+            "JOIN Books b ON bc.book_id = b.book_id " +
+            "WHERE 1=1 "
+        );
+
+        if (paymentStatus != null && !paymentStatus.isEmpty()) {
+            sql.append("AND f.payment_status = ? ");
+        }
+        if (startDate != null) {
+            sql.append("AND f.fine_date >= ? ");
+        }
+        if (endDate != null) {
+            sql.append("AND f.fine_date <= ? ");
+        }
+        if (searchTerm != null && !searchTerm.isEmpty()) {
+            sql.append("AND (u.full_name LIKE ? OR b.title LIKE ? OR u.email LIKE ?) ");
+        }
+        sql.append("ORDER BY f.fine_date DESC, f.payment_status");
+
+        try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
+            int paramIndex = 1;
+            if (paymentStatus != null && !paymentStatus.isEmpty()) {
+                ps.setString(paramIndex++, paymentStatus);
+            }
+            if (startDate != null) {
+                ps.setDate(paramIndex++, startDate);
+            }
+            if (endDate != null) {
+                ps.setDate(paramIndex++, endDate);
+            }
+            if (searchTerm != null && !searchTerm.isEmpty()) {
+                String pattern = "%" + searchTerm + "%";
+                ps.setString(paramIndex++, pattern);
+                ps.setString(paramIndex++, pattern);
+                ps.setString(paramIndex++, pattern);
+            }
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    FineDetail detail = new FineDetail();
+                    detail.fineId = rs.getInt("fine_id");
+                    detail.transactionId = rs.getInt("transaction_id");
+                    detail.userId = rs.getInt("user_id");
+                    detail.memberName = rs.getString("member_name");
+                    detail.memberEmail = rs.getString("member_email");
+                    detail.bookTitle = rs.getString("book_title");
+                    detail.fineAmount = rs.getBigDecimal("fine_amount");
+                    detail.fineReason = rs.getString("fine_reason");
+                    detail.daysOverdue = rs.getInt("days_overdue");
+                    detail.fineDate = rs.getDate("fine_date");
+                    detail.paymentStatus = rs.getString("payment_status");
+                    detail.paymentDate = rs.getDate("payment_date");
+                    detail.paymentMethod = rs.getString("payment_method");
+                    detail.notes = rs.getString("notes");
+                    results.add(detail);
+                }
+            }
+        }
+        return results;
+    }
+
+    /**
+     * Get member fine history
+     */
+    public static class MemberFineHistory {
+        public int userId;
+        public String memberName;
+        public String memberEmail;
+        public int totalFinesCount;
+        public java.math.BigDecimal totalFinesAmount;
+        public int unpaidCount;
+        public java.math.BigDecimal unpaidAmount;
+        public int paidCount;
+        public java.math.BigDecimal paidAmount;
+        public int waivedCount;
+        public java.math.BigDecimal waivedAmount;
+    }
+
+    public List<MemberFineHistory> getMemberFineHistories() throws SQLException {
+        List<MemberFineHistory> results = new ArrayList<>();
+        String sql = "SELECT u.user_id, u.full_name as member_name, u.email as member_email, " +
+                     "COUNT(f.fine_id) as total_fines_count, " +
+                     "SUM(f.fine_amount) as total_fines_amount, " +
+                     "SUM(CASE WHEN f.payment_status = 'unpaid' THEN 1 ELSE 0 END) as unpaid_count, " +
+                     "SUM(CASE WHEN f.payment_status = 'unpaid' THEN f.fine_amount ELSE 0 END) as unpaid_amount, " +
+                     "SUM(CASE WHEN f.payment_status = 'paid' THEN 1 ELSE 0 END) as paid_count, " +
+                     "SUM(CASE WHEN f.payment_status = 'paid' THEN f.fine_amount ELSE 0 END) as paid_amount, " +
+                     "SUM(CASE WHEN f.payment_status = 'waived' THEN 1 ELSE 0 END) as waived_count, " +
+                     "SUM(CASE WHEN f.payment_status = 'waived' THEN f.fine_amount ELSE 0 END) as waived_amount " +
+                     "FROM Users u " +
+                     "JOIN Fines f ON u.user_id = f.user_id " +
+                     "GROUP BY u.user_id, u.full_name, u.email " +
+                     "HAVING COUNT(f.fine_id) > 0 " +
+                     "ORDER BY unpaid_amount DESC, total_fines_amount DESC";
+        try (PreparedStatement ps = connection.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                MemberFineHistory history = new MemberFineHistory();
+                history.userId = rs.getInt("user_id");
+                history.memberName = rs.getString("member_name");
+                history.memberEmail = rs.getString("member_email");
+                history.totalFinesCount = rs.getInt("total_fines_count");
+                history.totalFinesAmount = rs.getBigDecimal("total_fines_amount");
+                if (history.totalFinesAmount == null) history.totalFinesAmount = java.math.BigDecimal.ZERO;
+                history.unpaidCount = rs.getInt("unpaid_count");
+                history.unpaidAmount = rs.getBigDecimal("unpaid_amount");
+                if (history.unpaidAmount == null) history.unpaidAmount = java.math.BigDecimal.ZERO;
+                history.paidCount = rs.getInt("paid_count");
+                history.paidAmount = rs.getBigDecimal("paid_amount");
+                if (history.paidAmount == null) history.paidAmount = java.math.BigDecimal.ZERO;
+                history.waivedCount = rs.getInt("waived_count");
+                history.waivedAmount = rs.getBigDecimal("waived_amount");
+                if (history.waivedAmount == null) history.waivedAmount = java.math.BigDecimal.ZERO;
+                results.add(history);
+            }
+        }
+        return results;
+    }
 }
 
