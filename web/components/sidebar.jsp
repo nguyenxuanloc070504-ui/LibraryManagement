@@ -80,7 +80,11 @@
             </a>
             <a href="<%= contextPath %>/transaction/renew" class="nav-item <%= "transaction-renew".equals(activeItem) ? "active" : "" %>">
                 <i class="fa-solid fa-rotate-right"></i>
-                <span>Renew Book</span>
+                <span>Renew Book (Direct)</span>
+            </a>
+            <a href="<%= contextPath %>/transaction/renewal-requests" class="nav-item <%= "renewal-requests".equals(activeItem) ? "active" : "" %>">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+                <span>Renewal Requests</span>
             </a>
             <a href="<%= contextPath %>/transaction/fines" class="nav-item <%= "transaction-fines".equals(activeItem) ? "active" : "" %>">
                 <i class="fa-solid fa-dollar-sign"></i>

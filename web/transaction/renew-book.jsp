@@ -24,6 +24,10 @@
             </div>
             <div class="nav-section">
                 <div class="nav-section-title">Member Management</div>
+                <a href="<%= request.getContextPath() %>/member/list" class="nav-item">
+                    <i class="fa-solid fa-users"></i>
+                    <span>Members</span>
+                </a>
                 <a href="<%= request.getContextPath() %>/member/register" class="nav-item">
                     <i class="fa-solid fa-user-plus"></i>
                     <span>Register New Member</span>
@@ -59,9 +63,17 @@
                     <i class="fa-solid fa-layer-group"></i>
                     <span>Manage Categories</span>
                 </a>
+                <a href="<%= request.getContextPath() %>/book/list" class="nav-item">
+                    <i class="fa-solid fa-list"></i>
+                    <span>Book List</span>
+                </a>
             </div>
             <div class="nav-section">
                 <div class="nav-section-title">Borrowing & Returning</div>
+                <a href="<%= request.getContextPath() %>/transaction/requests" class="nav-item">
+                    <i class="fa-solid fa-inbox"></i>
+                    <span>Borrow Requests</span>
+                </a>
                 <a href="<%= request.getContextPath() %>/transaction/lend" class="nav-item">
                     <i class="fa-solid fa-hand-holding"></i>
                     <span>Lend Book</span>
@@ -72,11 +84,26 @@
                 </a>
                 <a href="<%= request.getContextPath() %>/transaction/renew" class="nav-item active">
                     <i class="fa-solid fa-rotate-right"></i>
-                    <span>Renew Book</span>
+                    <span>Renew Book (Direct)</span>
+                </a>
+                <a href="<%= request.getContextPath() %>/transaction/renewal-requests" class="nav-item">
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+                    <span>Renewal Requests</span>
                 </a>
                 <a href="<%= request.getContextPath() %>/transaction/fines" class="nav-item">
                     <i class="fa-solid fa-dollar-sign"></i>
                     <span>Process Late Fees</span>
+                </a>
+            </div>
+            <div class="nav-section">
+                <div class="nav-section-title">Reports</div>
+                <a href="<%= request.getContextPath() %>/reports/statistics" class="nav-item">
+                    <i class="fa-solid fa-chart-pie"></i>
+                    <span>Reports & Statistics</span>
+                </a>
+                <a href="<%= request.getContextPath() %>/reports/overdue-books" class="nav-item">
+                    <i class="fa-solid fa-clock"></i>
+                    <span>Overdue Management</span>
                 </a>
             </div>
         </nav>
@@ -110,15 +137,26 @@
                     <h2 class="form-section-title">Search Current Borrowing</h2>
                     <p class="page-subtitle" style="margin:0 0 1rem;">Search by book title, member name, or ISBN</p>
                     <form method="get" action="<%= request.getContextPath() %>/transaction/renew" class="auth-form">
-                        <div class="form-field">
-                            <label class="label-muted">Search</label>
-                            <div class="input box">
-                                <input type="text" name="search" placeholder="Enter search term" 
-                                       value="<%= request.getParameter("search") != null ? request.getParameter("search") : "" %>" required />
+                        <div class="form-grid" style="display: grid; grid-template-columns: 1fr auto auto; gap: 1rem; align-items: end;">
+                            <div class="form-field inline">
+                                <label class="label-muted">Search</label>
+                                <div class="input box">
+                                    <input type="text" name="search" placeholder="Enter search term"
+                                           value="<%= request.getParameter("search") != null ? request.getParameter("search") : "" %>" required />
+                                </div>
                             </div>
-                        </div>
-                        <div class="form-actions">
-                            <button class="btn-primary" type="submit" style="width:auto;">Search</button>
+                            <div class="form-field inline">
+                                <label class="label-muted label-hidden">.</label>
+                                <button class="btn-primary inline-btn" type="submit">
+                                    <i class="fa-solid fa-search"></i> Search
+                                </button>
+                            </div>
+                            <div class="form-field inline">
+                                <label class="label-muted label-hidden">.</label>
+                                <a href="<%= request.getContextPath() %>/transaction/renew" class="btn-secondary inline-btn no-underline">
+                                    Clear
+                                </a>
+                            </div>
                         </div>
                     </form>
                 </section>

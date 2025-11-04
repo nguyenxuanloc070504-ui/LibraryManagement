@@ -41,6 +41,19 @@
         <% } %>
 
         <div class="<%= isMember ? "container" : "main-content" %>" style="<%= isMember ? "padding-top: 2rem; padding-bottom: 2rem;" : "" %>">
+            <%
+                String successMsg = (String) session.getAttribute("success");
+                String errorMsg = (String) session.getAttribute("error");
+                if (successMsg != null) {
+                    session.removeAttribute("success");
+            %>
+                <div class="alert-success"><%= successMsg %></div>
+            <% } %>
+            <% if (errorMsg != null) {
+                    session.removeAttribute("error");
+            %>
+                <div class="alert-error"><%= errorMsg %></div>
+            <% } %>
             <% if (request.getAttribute("error") != null) { %>
                 <div class="alert-error"><%= request.getAttribute("error") %></div>
             <% } %>
@@ -102,6 +115,47 @@
                                                 <i class="fa-regular fa-calendar-check"></i>
                                                 Schedule Return
                                             </button>
+                                            <button class="btn-icon-text" data-modal-open="modal-renewal-<%= b.transactionId %>" style="margin-left:0.5rem;">
+                                                <i class="fa-solid fa-rotate-right"></i>
+                                                Request Renewal
+                                            </button>
+
+                                            <!-- Renewal Confirmation Modal -->
+                                            <div class="modal" id="modal-renewal-<%= b.transactionId %>">
+                                                <div class="modal-overlay">
+                                                    <div class="modal-dialog">
+                                                        <div class="modal-header" style="text-align:center;">Request Renewal Confirmation</div>
+                                                        <div class="modal-body" style="text-align:center;">
+                                                            <p style="margin-bottom:0.5rem;">Are you sure you want to request renewal for:</p>
+                                                            <p style="margin-bottom:1.5rem;"><strong style="font-size:1.1rem;"><%= b.bookTitle %></strong></p>
+                                                            <div style="margin:1rem auto; padding:1rem; background:var(--color-background-secondary); border-radius:var(--border-radius); max-width:400px;">
+                                                                <div style="display:flex; justify-content:space-between; margin-bottom:0.5rem;">
+                                                                    <span class="text-muted">Current Due Date:</span>
+                                                                    <strong><%= b.dueDate %></strong>
+                                                                </div>
+                                                                <div style="display:flex; justify-content:space-between;">
+                                                                    <span class="text-muted">Current Renewals:</span>
+                                                                    <strong><%= b.renewalCount %></strong>
+                                                                </div>
+                                                            </div>
+                                                            <p style="margin-top:1rem; font-size:0.9rem; color:var(--color-text-muted);">
+                                                                <i class="fa-solid fa-info-circle"></i> Your renewal request will be sent to the librarian for approval.
+                                                            </p>
+                                                        </div>
+                                                        <div class="modal-actions" style="justify-content:center;">
+                                                            <button class="btn-secondary inline-btn" data-modal-close>Cancel</button>
+                                                            <form method="post" action="<%= request.getContextPath() %>/transaction/create-renewal-request" style="display:inline;">
+                                                                <input type="hidden" name="transaction_id" value="<%= b.transactionId %>" />
+                                                                <button type="submit" class="btn-primary inline-btn">
+                                                                    <i class="fa-solid fa-check"></i> Confirm Request
+                                                                </button>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Schedule Return Modal -->
                                             <div class="modal" id="modal-schedule-<%= b.transactionId %>">
                                                 <div class="modal-overlay">
                                                     <div class="modal-dialog">
@@ -180,6 +234,71 @@
                     <% } %>
                 </div>
             </section>
+
+            <%
+                java.util.List<dal.TransactionDAO.RenewalRequestDetail> renewalRequests =
+                    (java.util.List<dal.TransactionDAO.RenewalRequestDetail>) request.getAttribute("renewalRequests");
+                if (renewalRequests != null && !renewalRequests.isEmpty()) {
+            %>
+            <section class="card" style="width: 100%; margin-top: var(--spacing-xl);">
+                <div style="display:flex; align-items:center; gap:.5rem; margin-bottom:1rem;">
+                    <i class="fa-solid fa-rotate-right" style="color: var(--color-primary);"></i>
+                    <h2 class="form-section-title" style="margin:0;">Renewal Requests</h2>
+                </div>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Book</th>
+                                <th>ISBN</th>
+                                <th>Current Due Date</th>
+                                <th>Renewals</th>
+                                <th>Request Date</th>
+                                <th>Status</th>
+                                <th>Processed Date</th>
+                                <th>Notes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        <% for (dal.TransactionDAO.RenewalRequestDetail rr : renewalRequests) { %>
+                            <tr>
+                                <td><%= rr.bookTitle %></td>
+                                <td><%= rr.isbn != null ? rr.isbn : "" %></td>
+                                <td><%= rr.dueDate %></td>
+                                <td><%= rr.renewalCount %> / <%= rr.maxRenewals %></td>
+                                <td><%= new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm").format(rr.requestDate) %></td>
+                                <td>
+                                    <% if ("approved".equalsIgnoreCase(rr.requestStatus)) { %>
+                                        <span class="status-badge status-success">Approved</span>
+                                    <% } else if ("pending".equalsIgnoreCase(rr.requestStatus)) { %>
+                                        <span class="status-badge status-active">Pending</span>
+                                    <% } else if ("rejected".equalsIgnoreCase(rr.requestStatus)) { %>
+                                        <span class="status-badge status-locked">Rejected</span>
+                                    <% } else { %>
+                                        <span class="status-badge"><%= rr.requestStatus %></span>
+                                    <% } %>
+                                </td>
+                                <td>
+                                    <% if (rr.processedDate != null) { %>
+                                        <%= new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm").format(rr.processedDate) %>
+                                    <% } else { %>
+                                        <span class="text-muted">Not processed</span>
+                                    <% } %>
+                                </td>
+                                <td>
+                                    <% if (rr.rejectionReason != null && !rr.rejectionReason.isEmpty()) { %>
+                                        <%= rr.rejectionReason %>
+                                    <% } else { %>
+                                        <span class="text-muted">—</span>
+                                    <% } %>
+                                </td>
+                            </tr>
+                        <% } %>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+            <% } %>
 
             <%
                 java.util.List<dal.BorrowRequestDAO.UserBorrowRequest> borrowRequests =

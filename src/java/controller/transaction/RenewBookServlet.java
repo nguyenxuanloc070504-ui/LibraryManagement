@@ -18,7 +18,13 @@ public class RenewBookServlet extends HttpServlet {
             throws ServletException, IOException {
         String transactionIdParam = request.getParameter("id");
         String searchTerm = request.getParameter("search");
-        
+        String successParam = request.getParameter("success");
+
+        // Handle success message from redirect
+        if ("true".equals(successParam)) {
+            request.setAttribute("success", "Book renewed successfully. Due date extended.");
+        }
+
         TransactionDAO dao = new TransactionDAO();
         try {
             if (transactionIdParam != null && !transactionIdParam.trim().isEmpty()) {
@@ -125,11 +131,17 @@ public class RenewBookServlet extends HttpServlet {
             } else {
                 boolean success = dao.renewBook(transactionId, librarianId);
                 if (success) {
-                    TransactionDAO.BorrowingDetail updated = dao.getBorrowingById(transactionId);
-                    request.setAttribute("borrowing", updated);
-                    request.setAttribute("success", "Book renewed successfully. Due date extended.");
+                    // Redirect to success page to avoid showing error messages
+                    response.sendRedirect(request.getContextPath() + "/transaction/renew?success=true");
+                    return;
                 } else {
                     request.setAttribute("error", "Failed to renew book.");
+                    TransactionDAO.BorrowingDetail borrowing = dao.getBorrowingById(transactionId);
+                    if (borrowing != null) {
+                        request.setAttribute("borrowing", borrowing);
+                        request.setAttribute("eligibility", "Failed to process renewal");
+                        request.setAttribute("isEligible", false);
+                    }
                 }
             }
             request.getRequestDispatcher("/transaction/renew-book.jsp").forward(request, response);

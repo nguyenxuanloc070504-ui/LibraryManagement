@@ -674,5 +674,93 @@ public class TransactionDAO extends DBContext {
         }
         return results;
     }
+
+    /**
+     * Get all pending renewal requests (for Librarian)
+     */
+    public static class PendingRenewalRequest {
+        public int requestId;
+        public int transactionId;
+        public int userId;
+        public String memberName;
+        public String memberEmail;
+        public String bookTitle;
+        public String isbn;
+        public java.sql.Date borrowDate;
+        public java.sql.Date dueDate;
+        public int renewalCount;
+        public int maxRenewals;
+        public java.sql.Timestamp requestDate;
+        public String eligibilityStatus;
+    }
+
+    public List<PendingRenewalRequest> getPendingRenewalRequests() throws SQLException {
+        List<PendingRenewalRequest> results = new ArrayList<>();
+        String sql = "SELECT rr.request_id, rr.transaction_id, rr.user_id, u.full_name as member_name, " +
+                     "u.email as member_email, b.title as book_title, b.isbn, " +
+                     "bt.borrow_date, bt.due_date, bt.renewal_count, rr.request_date, " +
+                     "(SELECT CAST(setting_value AS DECIMAL) FROM System_Settings WHERE setting_key = 'max_renewal_count') as max_renewals, " +
+                     "CASE " +
+                     "  WHEN bt.renewal_count >= (SELECT CAST(setting_value AS DECIMAL) FROM System_Settings WHERE setting_key = 'max_renewal_count') " +
+                     "  THEN 'Maximum renewals reached' " +
+                     "  ELSE 'Can be approved' " +
+                     "END as eligibility_status " +
+                     "FROM Renewal_Requests rr " +
+                     "JOIN Borrowing_Transactions bt ON rr.transaction_id = bt.transaction_id " +
+                     "JOIN Users u ON rr.user_id = u.user_id " +
+                     "JOIN Book_Copies bc ON bt.copy_id = bc.copy_id " +
+                     "JOIN Books b ON bc.book_id = b.book_id " +
+                     "WHERE rr.request_status = 'pending' " +
+                     "ORDER BY rr.request_date ASC";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    PendingRenewalRequest detail = new PendingRenewalRequest();
+                    detail.requestId = rs.getInt("request_id");
+                    detail.transactionId = rs.getInt("transaction_id");
+                    detail.userId = rs.getInt("user_id");
+                    detail.memberName = rs.getString("member_name");
+                    detail.memberEmail = rs.getString("member_email");
+                    detail.bookTitle = rs.getString("book_title");
+                    detail.isbn = rs.getString("isbn");
+                    detail.borrowDate = rs.getDate("borrow_date");
+                    detail.dueDate = rs.getDate("due_date");
+                    detail.renewalCount = rs.getInt("renewal_count");
+                    detail.maxRenewals = rs.getInt("max_renewals");
+                    detail.requestDate = rs.getTimestamp("request_date");
+                    detail.eligibilityStatus = rs.getString("eligibility_status");
+                    results.add(detail);
+                }
+            }
+        }
+        return results;
+    }
+
+    /**
+     * Approve renewal request (triggers database trigger which handles renewal)
+     */
+    public boolean approveRenewalRequest(int requestId, int librarianId) throws SQLException {
+        String sql = "UPDATE Renewal_Requests SET request_status = 'approved', " +
+                     "processed_by = ?, processed_date = NOW() WHERE request_id = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, librarianId);
+            ps.setInt(2, requestId);
+            return ps.executeUpdate() > 0;
+        }
+    }
+
+    /**
+     * Reject renewal request
+     */
+    public boolean rejectRenewalRequest(int requestId, int librarianId, String rejectionReason) throws SQLException {
+        String sql = "UPDATE Renewal_Requests SET request_status = 'rejected', " +
+                     "processed_by = ?, processed_date = NOW(), rejection_reason = ? WHERE request_id = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, librarianId);
+            ps.setString(2, rejectionReason);
+            ps.setInt(3, requestId);
+            return ps.executeUpdate() > 0;
+        }
+    }
 }
 
