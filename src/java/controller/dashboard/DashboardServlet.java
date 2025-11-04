@@ -37,6 +37,8 @@ public class DashboardServlet extends HttpServlet {
                             stats.put("active_reservations", rs.getInt("active_reservations"));
                             stats.put("total_unpaid_fines", rs.getBigDecimal("total_unpaid_fines"));
                             stats.put("pending_renewal_requests", rs.getInt("pending_renewal_requests"));
+                            stats.put("pending_borrow_requests", rs.getInt("pending_borrow_requests"));
+                            stats.put("books_ready_for_pickup", rs.getInt("books_ready_for_pickup"));
                             request.setAttribute("stats", stats);
                         }
                     }

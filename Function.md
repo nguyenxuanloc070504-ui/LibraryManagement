@@ -34,7 +34,7 @@ Reader Actions:
 
 ---
 
-FEATURE 4: RENEWAL SYSTEM (Librarian + Reader)
+FEATURE 4: RENEWAL SYSTEM (Librarian + Reader) - Done
 
 Librarian Actions:
 - Renew Borrowed Book (Direct) - Directly extend borrowing period if book is not reserved

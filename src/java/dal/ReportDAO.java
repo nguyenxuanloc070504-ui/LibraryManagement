@@ -65,6 +65,13 @@ public class ReportDAO extends DBContext {
             boolean hasResult = cs.execute();
             if (hasResult) {
                 try (ResultSet rs = cs.getResultSet()) {
+                    // Build a fast lookup set of returned column names to guard against
+                    // minor schema/procedure differences between environments
+                    java.util.HashSet<String> columnSet = new java.util.HashSet<>();
+                    ResultSetMetaData meta = rs.getMetaData();
+                    for (int i = 1; i <= meta.getColumnCount(); i++) {
+                        columnSet.add(meta.getColumnLabel(i).toLowerCase());
+                    }
                     while (rs.next()) {
                         PopularBook book = new PopularBook();
                         book.bookId = rs.getInt("book_id");
@@ -72,9 +79,11 @@ public class ReportDAO extends DBContext {
                         book.isbn = rs.getString("isbn");
                         book.categoryName = rs.getString("category_name");
                         book.authors = rs.getString("authors");
-                        book.totalBorrows = rs.getInt("borrow_count");
-                        book.borrowsLastMonth = rs.getInt("borrows_last_month");
-                        book.currentReservations = rs.getInt("current_reservations");
+                        // procedure returns borrow_count as total borrows
+                        book.totalBorrows = columnSet.contains("borrow_count") ? rs.getInt("borrow_count") : rs.getInt("total_borrows");
+                        // optional columns depending on DB version
+                        book.borrowsLastMonth = columnSet.contains("borrows_last_month") ? rs.getInt("borrows_last_month") : 0;
+                        book.currentReservations = columnSet.contains("current_reservations") ? rs.getInt("current_reservations") : 0;
                         book.avgBorrowDuration = rs.getDouble("avg_borrow_duration");
                         results.add(book);
                     }

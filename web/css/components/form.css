@@ -200,12 +200,28 @@ textarea::-ms-input-placeholder {
 .input.box select,
 .input.box textarea {
     width: 100%;
+    min-width: 100%;
+    display: block;
+    box-sizing: border-box;
     background: transparent;
     color: #111827;
     border: 0;
     outline: 0;
     font-size: var(--font-size-base);
     padding: var(--spacing-xs) var(--spacing-sm);
+}
+
+/* Make native select visually match text input width and padding */
+.input.box select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    padding-right: calc(var(--spacing-md) + 1.25rem); /* room for arrow */
+    background-image: linear-gradient(45deg, transparent 50%, #111827 50%),
+                      linear-gradient(135deg, #111827 50%, transparent 50%);
+    background-position: right calc(var(--spacing-md) + .5rem) center, right var(--spacing-md) center;
+    background-size: .5rem .5rem, .5rem .5rem;
+    background-repeat: no-repeat;
 }
 
 .input.box textarea {

@@ -10,102 +10,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reports & Statistics</title>
     <link rel="stylesheet" href="<%= request.getContextPath() %>/css/main.css">
+    <link rel="stylesheet" href="<%= request.getContextPath() %>/css/components/button.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
 <div class="layout">
-    <aside class="sidebar">
-        <div class="brand-small">Library Management System</div>
-        <nav class="nav">
-            <div class="nav-section">
-                <div class="nav-section-title">Main Menu</div>
-                <a href="<%= request.getContextPath() %>/dashboard" class="nav-item">
-                    <i class="fa-solid fa-chart-line"></i>
-                    <span>Dashboard</span>
-                </a>
-            </div>
-
-            <div class="nav-section">
-                <div class="nav-section-title">Member Management</div>
-                <a href="<%= request.getContextPath() %>/member/register" class="nav-item">
-                    <i class="fa-solid fa-user-plus"></i>
-                    <span>Register New Member</span>
-                </a>
-                <a href="<%= request.getContextPath() %>/member/update" class="nav-item">
-                    <i class="fa-solid fa-user-pen"></i>
-                    <span>Update Member</span>
-                </a>
-                <a href="<%= request.getContextPath() %>/member/renew" class="nav-item">
-                    <i class="fa-solid fa-rotate"></i>
-                    <span>Renew Membership</span>
-                </a>
-                <a href="<%= request.getContextPath() %>/member/lock-unlock" class="nav-item">
-                    <i class="fa-solid fa-user-lock"></i>
-                    <span>Lock/Unlock Account</span>
-                </a>
-            </div>
-
-            <div class="nav-section">
-                <div class="nav-section-title">Book Management</div>
-                <a href="<%= request.getContextPath() %>/book/add" class="nav-item">
-                    <i class="fa-solid fa-book-medical"></i>
-                    <span>Add New Book</span>
-                </a>
-                <a href="<%= request.getContextPath() %>/book/update" class="nav-item">
-                    <i class="fa-solid fa-book-open-reader"></i>
-                    <span>Update Book</span>
-                </a>
-                <a href="<%= request.getContextPath() %>/book/remove" class="nav-item">
-                    <i class="fa-solid fa-book-skull"></i>
-                    <span>Remove Book</span>
-                </a>
-                <a href="<%= request.getContextPath() %>/book/categories" class="nav-item">
-                    <i class="fa-solid fa-tags"></i>
-                    <span>Manage Categories</span>
-                </a>
-            </div>
-
-            <div class="nav-section">
-                <div class="nav-section-title">Transactions</div>
-                <a href="<%= request.getContextPath() %>/transaction/lend" class="nav-item">
-                    <i class="fa-solid fa-hand-holding-hand"></i>
-                    <span>Lend Book</span>
-                </a>
-                <a href="<%= request.getContextPath() %>/transaction/return" class="nav-item">
-                    <i class="fa-solid fa-arrow-rotate-left"></i>
-                    <span>Return Book</span>
-                </a>
-                <a href="<%= request.getContextPath() %>/transaction/renew" class="nav-item">
-                    <i class="fa-solid fa-rotate-right"></i>
-                    <span>Renew Book</span>
-                </a>
-                <a href="<%= request.getContextPath() %>/transaction/fines" class="nav-item">
-                    <i class="fa-solid fa-dollar-sign"></i>
-                    <span>Process Late Fees</span>
-                </a>
-            </div>
-
-            <div class="nav-section">
-                <div class="nav-section-title">Reports</div>
-                <a href="<%= request.getContextPath() %>/reports/statistics" class="nav-item active">
-                    <i class="fa-solid fa-chart-pie"></i>
-                    <span>Reports & Statistics</span>
-                </a>
-                <a href="<%= request.getContextPath() %>/reports/overdue-books" class="nav-item">
-                    <i class="fa-solid fa-clock"></i>
-                    <span>Overdue Management</span>
-                </a>
-            </div>
-        </nav>
-    </aside>
+    <jsp:include page="/components/sidebar.jsp">
+        <jsp:param name="activeItem" value="reports-statistics"/>
+    </jsp:include>
 
     <main class="content">
-        <header class="content-header">
-            <div>
-                <h1 class="page-title">Reports & Statistics</h1>
-                <p class="page-subtitle">Generate and view library statistics and reports</p>
-            </div>
-        </header>
+        <jsp:include page="/components/header.jsp">
+            <jsp:param name="pageTitle" value="Reports & Statistics"/>
+            <jsp:param name="pageSubtitle" value="Generate and view library statistics and reports"/>
+        </jsp:include>
 
         <div class="main-content">
             <% if (request.getAttribute("error") != null) { %>
@@ -115,136 +33,60 @@
             <!-- Report Type Selector -->
             <section class="card">
                 <h2 class="form-section-title">Select Report Type</h2>
-                <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-                    <a href="<%= request.getContextPath() %>/reports/statistics?type=dashboard" 
-                       class="btn-secondary <%= "dashboard".equals(request.getAttribute("reportType")) ? "active" : "" %>">
-                        <i class="fa-solid fa-tachometer-alt"></i> Dashboard Stats
-                    </a>
-                    <a href="<%= request.getContextPath() %>/reports/statistics?type=popular-books" 
-                       class="btn-secondary <%= "popular-books".equals(request.getAttribute("reportType")) ? "active" : "" %>">
-                        <i class="fa-solid fa-star"></i> Popular Books
-                    </a>
-                    <a href="<%= request.getContextPath() %>/reports/statistics?type=active-members" 
-                       class="btn-secondary <%= "active-members".equals(request.getAttribute("reportType")) ? "active" : "" %>">
-                        <i class="fa-solid fa-users"></i> Active Members
-                    </a>
-                    <a href="<%= request.getContextPath() %>/reports/statistics?type=fine-revenue" 
-                       class="btn-secondary <%= "fine-revenue".equals(request.getAttribute("reportType")) ? "active" : "" %>">
-                        <i class="fa-solid fa-money-bill-wave"></i> Fine Revenue
-                    </a>
-                    <a href="<%= request.getContextPath() %>/reports/statistics?type=categories" 
-                       class="btn-secondary <%= "categories".equals(request.getAttribute("reportType")) ? "active" : "" %>">
-                        <i class="fa-solid fa-tags"></i> Category Statistics
-                    </a>
+                <form method="get" action="<%= request.getContextPath() %>/reports/statistics" style="width: 100%;">
+                    <div class="form-field" style="width: 100%;">
+                        <label class="label-muted">Report Type</label>
+                        <div class="input box" style="width: 100%;">
+                            <select name="type" onchange="this.form.submit()">
+                                <option value="" disabled <%= (request.getAttribute("reportType") == null || "dashboard".equals(request.getAttribute("reportType"))) ? "selected" : "" %>>Please select a report type</option>
+                                <option value="popular-books" <%= "popular-books".equals(request.getAttribute("reportType")) ? "selected" : "" %>>Popular Books</option>
+                                <option value="active-members" <%= "active-members".equals(request.getAttribute("reportType")) ? "selected" : "" %>>Active Members</option>
+                                <option value="fine-revenue" <%= "fine-revenue".equals(request.getAttribute("reportType")) ? "selected" : "" %>>Fine Revenue</option>
+                                <option value="categories" <%= "categories".equals(request.getAttribute("reportType")) ? "selected" : "" %>>Category Statistics</option>
+                            </select>
+                        </div>
                 </div>
+                </form>
             </section>
 
             <% String reportType = (String) request.getAttribute("reportType"); %>
-            <% if (reportType == null || "dashboard".equals(reportType)) { %>
-                <!-- Dashboard Statistics -->
-                <% ReportDAO.DashboardStats stats = (ReportDAO.DashboardStats) request.getAttribute("dashboardStats"); %>
-                <% if (stats != null) { %>
+
+            <% if ("popular-books".equals(reportType)) { %>
+                <!-- Popular Books Report -->
                     <section class="card" style="margin-top: 1.5rem;">
-                        <h2 class="form-section-title">Dashboard Overview</h2>
-                        <div class="form-grid four-col">
-                            <div class="info-card">
-                                <div class="info-card-icon" style="background: var(--color-primary);">
-                                    <i class="fa-solid fa-book"></i>
-                                </div>
-                                <div class="info-card-content">
-                                    <div class="info-card-label">Total Books</div>
-                                    <div class="info-card-value"><%= stats.totalBooks %></div>
-                                </div>
-                            </div>
-                            <div class="info-card">
-                                <div class="info-card-icon" style="background: var(--color-success);">
-                                    <i class="fa-solid fa-book-open"></i>
-                                </div>
-                                <div class="info-card-content">
-                                    <div class="info-card-label">Available Copies</div>
-                                    <div class="info-card-value"><%= stats.availableCopies %></div>
-                                </div>
-                            </div>
-                            <div class="info-card">
-                                <div class="info-card-icon" style="background: var(--color-info);">
-                                    <i class="fa-solid fa-users"></i>
-                                </div>
-                                <div class="info-card-content">
-                                    <div class="info-card-label">Total Members</div>
-                                    <div class="info-card-value"><%= stats.totalMembers %></div>
-                                </div>
-                            </div>
-                            <div class="info-card">
-                                <div class="info-card-icon" style="background: var(--color-warning);">
-                                    <i class="fa-solid fa-hand-holding"></i>
-                                </div>
-                                <div class="info-card-content">
-                                    <div class="info-card-label">Current Borrows</div>
-                                    <div class="info-card-value"><%= stats.currentBorrows %></div>
-                                </div>
-                            </div>
-                            <div class="info-card">
-                                <div class="info-card-icon" style="background: var(--color-error);">
-                                    <i class="fa-solid fa-exclamation-triangle"></i>
-                                </div>
-                                <div class="info-card-content">
-                                    <div class="info-card-label">Overdue Books</div>
-                                    <div class="info-card-value"><%= stats.overdueBooks %></div>
-                                </div>
-                            </div>
-                            <div class="info-card">
-                                <div class="info-card-icon" style="background: var(--color-secondary);">
-                                    <i class="fa-solid fa-bookmark"></i>
-                                </div>
-                                <div class="info-card-content">
-                                    <div class="info-card-label">Active Reservations</div>
-                                    <div class="info-card-value"><%= stats.activeReservations %></div>
-                                </div>
-                            </div>
-                            <div class="info-card">
-                                <div class="info-card-icon" style="background: var(--color-error);">
-                                    <i class="fa-solid fa-dollar-sign"></i>
-                                </div>
-                                <div class="info-card-content">
-                                    <div class="info-card-label">Unpaid Fines</div>
-                                    <div class="info-card-value">$<%= String.format("%.2f", stats.totalUnpaidFines) %></div>
-                                </div>
-                            </div>
-                            <div class="info-card">
-                                <div class="info-card-icon" style="background: var(--color-warning);">
-                                    <i class="fa-solid fa-clock"></i>
-                                </div>
-                                <div class="info-card-content">
-                                    <div class="info-card-label">Pending Renewals</div>
-                                    <div class="info-card-value"><%= stats.pendingRenewalRequests %></div>
-                                </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; gap: 1rem;">
+                        <h2 class="form-section-title" style="margin: 0;">Popular Books Report</h2>
+                        <%
+                            String exportPopularBase = request.getContextPath() + "/reports/export?type=popular-books" +
+                                    (request.getAttribute("periodDays") != null ? "&period=" + request.getAttribute("periodDays") : "") +
+                                    (request.getAttribute("limit") != null ? "&limit=" + request.getAttribute("limit") : "");
+                        %>
+                        <div style="display: flex; gap: .5rem;">
+                            <a href="<%= exportPopularBase %>&format=excel" class="btn-primary inline-btn">
+                                <i class="fa-solid fa-file-excel"></i> Excel
+                            </a>
+                            <a href="<%= exportPopularBase %>&format=pdf" class="btn-primary inline-btn">
+                                <i class="fa-solid fa-file-pdf"></i> PDF
+                            </a>
                             </div>
                         </div>
-                    </section>
-                <% } %>
-            <% } else if ("popular-books".equals(reportType)) { %>
-                <!-- Popular Books Report -->
-                <section class="card" style="margin-top: 1.5rem;">
-                    <h2 class="form-section-title">Popular Books Report</h2>
                     <form method="get" action="<%= request.getContextPath() %>/reports/statistics" style="margin-bottom: 1.5rem;">
                         <input type="hidden" name="type" value="popular-books" />
                         <div class="form-grid two-col">
                             <div class="form-field">
                                 <label class="label-muted">Period (days)</label>
                                 <div class="input box">
-                                    <input type="number" name="period" value="<%= request.getAttribute("periodDays") != null ? request.getAttribute("periodDays") : 90 %>" min="1" />
+                                    <input type="number" name="period" value="<%= request.getAttribute("periodDays") != null ? request.getAttribute("periodDays") : 90 %>" min="1" onchange="this.form.submit()" />
                                 </div>
                             </div>
                             <div class="form-field">
                                 <label class="label-muted">Limit (top N)</label>
                                 <div class="input box">
-                                    <input type="number" name="limit" value="<%= request.getAttribute("limit") != null ? request.getAttribute("limit") : 20 %>" min="1" max="100" />
+                                    <input type="number" name="limit" value="<%= request.getAttribute("limit") != null ? request.getAttribute("limit") : 20 %>" min="1" max="100" onchange="this.form.submit()" />
                                 </div>
                             </div>
                         </div>
-                        <div class="form-actions">
-                            <button type="submit" class="btn-primary">Generate Report</button>
-                        </div>
+                        
                     </form>
 
                     <% List<ReportDAO.PopularBook> books = (List<ReportDAO.PopularBook>) request.getAttribute("popularBooks"); %>
@@ -287,26 +129,39 @@
             <% } else if ("active-members".equals(reportType)) { %>
                 <!-- Active Members Report -->
                 <section class="card" style="margin-top: 1.5rem;">
-                    <h2 class="form-section-title">Most Active Members Report</h2>
+                    <div style="display: flex; justify-content: space-between; align-items: center; gap: 1rem;">
+                        <h2 class="form-section-title" style="margin: 0;">Most Active Members Report</h2>
+                        <%
+                            String exportActiveBase = request.getContextPath() + "/reports/export?type=active-members" +
+                                    (request.getAttribute("periodDays") != null ? "&period=" + request.getAttribute("periodDays") : "") +
+                                    (request.getAttribute("limit") != null ? "&limit=" + request.getAttribute("limit") : "");
+                        %>
+                        <div style="display: flex; gap: .5rem;">
+                            <a href="<%= exportActiveBase %>&format=excel" class="btn-primary inline-btn">
+                                <i class="fa-solid fa-file-excel"></i> Excel
+                            </a>
+                            <a href="<%= exportActiveBase %>&format=pdf" class="btn-primary inline-btn">
+                                <i class="fa-solid fa-file-pdf"></i> PDF
+                            </a>
+                        </div>
+                    </div>
                     <form method="get" action="<%= request.getContextPath() %>/reports/statistics" style="margin-bottom: 1.5rem;">
                         <input type="hidden" name="type" value="active-members" />
                         <div class="form-grid two-col">
                             <div class="form-field">
                                 <label class="label-muted">Period (days)</label>
                                 <div class="input box">
-                                    <input type="number" name="period" value="<%= request.getAttribute("periodDays") != null ? request.getAttribute("periodDays") : 90 %>" min="1" />
+                                    <input type="number" name="period" value="<%= request.getAttribute("periodDays") != null ? request.getAttribute("periodDays") : 90 %>" min="1" onchange="this.form.submit()" />
                                 </div>
                             </div>
                             <div class="form-field">
                                 <label class="label-muted">Limit (top N)</label>
                                 <div class="input box">
-                                    <input type="number" name="limit" value="<%= request.getAttribute("limit") != null ? request.getAttribute("limit") : 20 %>" min="1" max="100" />
+                                    <input type="number" name="limit" value="<%= request.getAttribute("limit") != null ? request.getAttribute("limit") : 20 %>" min="1" max="100" onchange="this.form.submit()" />
                                 </div>
                             </div>
                         </div>
-                        <div class="form-actions">
-                            <button type="submit" class="btn-primary">Generate Report</button>
-                        </div>
+                        
                     </form>
 
                     <% List<ReportDAO.ActiveMember> members = (List<ReportDAO.ActiveMember>) request.getAttribute("activeMembers"); %>
@@ -355,26 +210,39 @@
             <% } else if ("fine-revenue".equals(reportType)) { %>
                 <!-- Fine Revenue Report -->
                 <section class="card" style="margin-top: 1.5rem;">
-                    <h2 class="form-section-title">Fine Revenue Report</h2>
+                    <div style="display: flex; justify-content: space-between; align-items: center; gap: 1rem;">
+                        <h2 class="form-section-title" style="margin: 0;">Fine Revenue Report</h2>
+                        <%
+                            String exportFineBase = request.getContextPath() + "/reports/export?type=fine-revenue" +
+                                    (request.getAttribute("startDate") != null ? "&start_date=" + request.getAttribute("startDate") : "") +
+                                    (request.getAttribute("endDate") != null ? "&end_date=" + request.getAttribute("endDate") : "");
+                        %>
+                        <div style="display: flex; gap: .5rem;">
+                            <a href="<%= exportFineBase %>&format=excel" class="btn-primary inline-btn">
+                                <i class="fa-solid fa-file-excel"></i> Excel
+                            </a>
+                            <a href="<%= exportFineBase %>&format=pdf" class="btn-primary inline-btn">
+                                <i class="fa-solid fa-file-pdf"></i> PDF
+                            </a>
+                        </div>
+                    </div>
                     <form method="get" action="<%= request.getContextPath() %>/reports/statistics" style="margin-bottom: 1.5rem;">
                         <input type="hidden" name="type" value="fine-revenue" />
                         <div class="form-grid two-col">
                             <div class="form-field">
                                 <label class="label-muted">Start Date</label>
                                 <div class="input box">
-                                    <input type="date" name="start_date" value="<%= request.getAttribute("startDate") != null ? request.getAttribute("startDate") : "" %>" />
+                                    <input type="date" name="start_date" value="<%= request.getAttribute("startDate") != null ? request.getAttribute("startDate") : "" %>" onchange="this.form.submit()" />
                                 </div>
                             </div>
                             <div class="form-field">
                                 <label class="label-muted">End Date</label>
                                 <div class="input box">
-                                    <input type="date" name="end_date" value="<%= request.getAttribute("endDate") != null ? request.getAttribute("endDate") : "" %>" />
+                                    <input type="date" name="end_date" value="<%= request.getAttribute("endDate") != null ? request.getAttribute("endDate") : "" %>" onchange="this.form.submit()" />
                                 </div>
                             </div>
                         </div>
-                        <div class="form-actions">
-                            <button type="submit" class="btn-primary">Generate Report</button>
-                        </div>
+                        
                     </form>
 
                     <% List<ReportDAO.FineRevenue> revenues = (List<ReportDAO.FineRevenue>) request.getAttribute("fineRevenue"); %>
@@ -431,7 +299,17 @@
             <% } else if ("categories".equals(reportType)) { %>
                 <!-- Category Statistics -->
                 <section class="card" style="margin-top: 1.5rem;">
-                    <h2 class="form-section-title">Category Statistics</h2>
+                    <div style="display: flex; justify-content: space-between; align-items: center; gap: 1rem;">
+                        <h2 class="form-section-title" style="margin: 0;">Category Statistics</h2>
+                        <div style="display: flex; gap: .5rem;">
+                            <a href="<%= request.getContextPath() %>/reports/export?type=categories&format=excel" class="btn-primary inline-btn">
+                                <i class="fa-solid fa-file-excel"></i> Excel
+                            </a>
+                            <a href="<%= request.getContextPath() %>/reports/export?type=categories&format=pdf" class="btn-primary inline-btn">
+                                <i class="fa-solid fa-file-pdf"></i> PDF
+                            </a>
+                        </div>
+                    </div>
                     <% List<ReportDAO.CategoryStat> categoryStats = (List<ReportDAO.CategoryStat>) request.getAttribute("categoryStats"); %>
                     <% if (categoryStats != null && !categoryStats.isEmpty()) { %>
                         <div class="table-container">
@@ -472,4 +350,7 @@
 <script src="<%= request.getContextPath() %>/js/main.js"></script>
 </body>
 </html>
+
+
+
 

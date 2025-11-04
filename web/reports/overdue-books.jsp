@@ -14,108 +14,18 @@
 </head>
 <body>
 <div class="layout">
-    <aside class="sidebar">
-        <div class="brand-small">Library Management System</div>
-        <nav class="nav">
-            <div class="nav-section">
-                <div class="nav-section-title">Main Menu</div>
-                <a href="<%= request.getContextPath() %>/dashboard" class="nav-item">
-                    <i class="fa-solid fa-chart-line"></i>
-                    <span>Dashboard</span>
-                </a>
-            </div>
-
-            <div class="nav-section">
-                <div class="nav-section-title">Member Management</div>
-                <a href="<%= request.getContextPath() %>/member/register" class="nav-item">
-                    <i class="fa-solid fa-user-plus"></i>
-                    <span>Register New Member</span>
-                </a>
-                <a href="<%= request.getContextPath() %>/member/update" class="nav-item">
-                    <i class="fa-solid fa-user-pen"></i>
-                    <span>Update Member</span>
-                </a>
-                <a href="<%= request.getContextPath() %>/member/renew" class="nav-item">
-                    <i class="fa-solid fa-rotate"></i>
-                    <span>Renew Membership</span>
-                </a>
-                <a href="<%= request.getContextPath() %>/member/lock-unlock" class="nav-item">
-                    <i class="fa-solid fa-user-lock"></i>
-                    <span>Lock/Unlock Account</span>
-                </a>
-            </div>
-
-            <div class="nav-section">
-                <div class="nav-section-title">Book Management</div>
-                <a href="<%= request.getContextPath() %>/book/add" class="nav-item">
-                    <i class="fa-solid fa-book-medical"></i>
-                    <span>Add New Book</span>
-                </a>
-                <a href="<%= request.getContextPath() %>/book/update" class="nav-item">
-                    <i class="fa-solid fa-book-open-reader"></i>
-                    <span>Update Book</span>
-                </a>
-                <a href="<%= request.getContextPath() %>/book/remove" class="nav-item">
-                    <i class="fa-solid fa-book-skull"></i>
-                    <span>Remove Book</span>
-                </a>
-                <a href="<%= request.getContextPath() %>/book/categories" class="nav-item">
-                    <i class="fa-solid fa-tags"></i>
-                    <span>Manage Categories</span>
-                </a>
-            </div>
-
-            <div class="nav-section">
-                <div class="nav-section-title">Transactions</div>
-                <a href="<%= request.getContextPath() %>/transaction/lend" class="nav-item">
-                    <i class="fa-solid fa-hand-holding-hand"></i>
-                    <span>Lend Book</span>
-                </a>
-                <a href="<%= request.getContextPath() %>/transaction/return" class="nav-item">
-                    <i class="fa-solid fa-arrow-rotate-left"></i>
-                    <span>Return Book</span>
-                </a>
-                <a href="<%= request.getContextPath() %>/transaction/renew" class="nav-item">
-                    <i class="fa-solid fa-rotate-right"></i>
-                    <span>Renew Book</span>
-                </a>
-                <a href="<%= request.getContextPath() %>/transaction/fines" class="nav-item">
-                    <i class="fa-solid fa-dollar-sign"></i>
-                    <span>Process Late Fees</span>
-                </a>
-            </div>
-
-            <div class="nav-section">
-                <div class="nav-section-title">Reports</div>
-                <a href="<%= request.getContextPath() %>/reports/statistics" class="nav-item">
-                    <i class="fa-solid fa-chart-pie"></i>
-                    <span>Reports & Statistics</span>
-                </a>
-                <a href="<%= request.getContextPath() %>/reports/overdue-books" class="nav-item active">
-                    <i class="fa-solid fa-clock"></i>
-                    <span>Overdue Management</span>
-                </a>
-            </div>
-        </nav>
-    </aside>
+    <jsp:include page="/components/sidebar.jsp">
+        <jsp:param name="activeItem" value="reports-overdue"/>
+    </jsp:include>
 
     <main class="content">
-        <header class="content-header">
-            <div>
-                <h1 class="page-title">Overdue Books Management</h1>
-                <p class="page-subtitle">View and manage overdue books, send reminders to members</p>
-            </div>
-            <div>
-                <form method="post" action="<%= request.getContextPath() %>/reports/send-reminders" style="display: inline;">
-                    <button type="submit" class="btn-primary">
-                        <i class="fa-solid fa-paper-plane"></i> Send Due Date Reminders
-                    </button>
-                </form>
-            </div>
-        </header>
+        <jsp:include page="/components/header.jsp">
+            <jsp:param name="pageTitle" value="Overdue Books Management"/>
+            <jsp:param name="pageSubtitle" value="View and manage overdue books, send reminders to members"/>
+        </jsp:include>
 
         <div class="main-content">
-            <% 
+            <%
                 String successMsg = (String) request.getSession().getAttribute("success");
                 String errorMsg = (String) request.getSession().getAttribute("error");
                 if (successMsg != null) {
@@ -143,7 +53,17 @@
                 </section>
             <% } else { %>
                 <section class="card">
-                    <h2 class="form-section-title">Overdue Books (<%= overdueBooks.size() %> books)</h2>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <h2 class="form-section-title" style="margin: 0;">Overdue Books (<%= overdueBooks.size() %> books)</h2>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <a href="<%= request.getContextPath() %>/reports/export?type=overdue-books&format=excel" class="btn-secondary">
+                                <i class="fa-solid fa-file-excel"></i> Excel
+                            </a>
+                            <a href="<%= request.getContextPath() %>/reports/export?type=overdue-books&format=pdf" class="btn-secondary">
+                                <i class="fa-solid fa-file-pdf"></i> PDF
+                            </a>
+                        </div>
+                    </div>
                     <div class="table-container">
                         <table class="data-table">
                             <thead>
@@ -159,14 +79,14 @@
                                     <th>Calculated Fine</th>
                                     <th>Recorded Fine</th>
                                     <th>Fine Status</th>
+                                    <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <% for (ReportDAO.OverdueBookDetail book : overdueBooks) { %>
                                     <tr>
                                         <td>
-                                            <strong><%= book.memberName %></strong><br>
-                                            <small class="text-muted">ID: <%= book.userId %></small>
+                                            <strong><%= book.memberName %></strong>
                                         </td>
                                         <td>
                                             <div><%= book.email %></div>
@@ -210,80 +130,19 @@
                                                 <span class="status-badge status-locked">Not Generated</span>
                                             <% } %>
                                         </td>
+                                        <td>
+                                            <form method="post" action="<%= request.getContextPath() %>/reports/send-reminder" style="display: inline;">
+                                                <input type="hidden" name="userId" value="<%= book.userId %>">
+                                                <input type="hidden" name="transactionId" value="<%= book.transactionId %>">
+                                                <button type="submit" class="btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.85rem;">
+                                                    <i class="fa-solid fa-paper-plane"></i> Send
+                                                </button>
+                                            </form>
+                                        </td>
                                     </tr>
                                 <% } %>
                             </tbody>
                         </table>
-                    </div>
-                </section>
-
-                <!-- Summary Statistics -->
-                <section class="card" style="margin-top: 1.5rem;">
-                    <h2 class="form-section-title">Summary</h2>
-                    <div class="form-grid four-col">
-                        <div class="info-card">
-                            <div class="info-card-icon" style="background: var(--color-error);">
-                                <i class="fa-solid fa-exclamation-triangle"></i>
-                            </div>
-                            <div class="info-card-content">
-                                <div class="info-card-label">Total Overdue</div>
-                                <div class="info-card-value"><%= overdueBooks.size() %></div>
-                            </div>
-                        </div>
-                        <div class="info-card">
-                            <div class="info-card-icon" style="background: var(--color-warning);">
-                                <i class="fa-solid fa-dollar-sign"></i>
-                            </div>
-                            <div class="info-card-content">
-                                <div class="info-card-label">Total Calculated Fines</div>
-                                <div class="info-card-value">
-                                    $<%
-                                        java.math.BigDecimal totalCalculated = java.math.BigDecimal.ZERO;
-                                        for (ReportDAO.OverdueBookDetail book : overdueBooks) {
-                                            if (book.calculatedFine != null) {
-                                                totalCalculated = totalCalculated.add(book.calculatedFine);
-                                            }
-                                        }
-                                        out.print(df.format(totalCalculated));
-                                    %>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="info-card">
-                            <div class="info-card-icon" style="background: var(--color-info);">
-                                <i class="fa-solid fa-clock"></i>
-                            </div>
-                            <div class="info-card-content">
-                                <div class="info-card-label">Avg Days Overdue</div>
-                                <div class="info-card-value">
-                                    <%
-                                        int totalDays = 0;
-                                        for (ReportDAO.OverdueBookDetail book : overdueBooks) {
-                                            totalDays += book.daysOverdue;
-                                        }
-                                        double avgDays = overdueBooks.size() > 0 ? (double) totalDays / overdueBooks.size() : 0;
-                                        out.print(String.format("%.1f", avgDays));
-                                    %> days
-                                </div>
-                            </div>
-                        </div>
-                        <div class="info-card">
-                            <div class="info-card-icon" style="background: var(--color-secondary);">
-                                <i class="fa-solid fa-users"></i>
-                            </div>
-                            <div class="info-card-content">
-                                <div class="info-card-label">Affected Members</div>
-                                <div class="info-card-value">
-                                    <%
-                                        java.util.Set<Integer> uniqueMembers = new java.util.HashSet<>();
-                                        for (ReportDAO.OverdueBookDetail book : overdueBooks) {
-                                            uniqueMembers.add(book.userId);
-                                        }
-                                        out.print(uniqueMembers.size());
-                                    %>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 </section>
             <% } %>

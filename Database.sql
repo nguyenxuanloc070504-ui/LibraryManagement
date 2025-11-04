@@ -102,7 +102,7 @@ CREATE TABLE Books (
     title VARCHAR(255) NOT NULL,
     category_id INT NOT NULL,
     publisher_id INT NOT NULL,
-    publication_year YEAR,
+    publication_year SMALLINT,
     edition VARCHAR(50),
     language VARCHAR(50) DEFAULT 'English',
     pages INT,
@@ -1859,31 +1859,48 @@ END//
 DELIMITER ;
 
 -- ============================================
--- PART 9: SAMPLE DATA (For Testing)
+-- PART 9: SAMPLE DATA (For Testing & Reports)
 -- ============================================
 
--- Sample Librarian
+-- Sample Librarians
 INSERT INTO Users (role_id, username, password_hash, email, full_name, phone, account_status)
-VALUES 
-(1, 'librarian', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 
- 'librarian@library.com', 'John Librarian', '+1234567890', 'active');
+VALUES
+(1, 'librarian', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi',
+ 'librarian@library.com', 'John Librarian', '+1234567890', 'active'),
+(1, 'librarian2', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi',
+ 'librarian2@library.com', 'Mary Anderson', '+1234567899', 'active');
 
--- Sample Members
+-- Sample Members (Expanded)
 INSERT INTO Users (role_id, username, password_hash, email, full_name, phone, date_of_birth, address, account_status)
-VALUES 
-(2, 'alice_smith', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 
+VALUES
+(2, 'alice_smith', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi',
  'alice@email.com', 'Alice Smith', '+1234567891', '1995-05-15', '123 Main St, City', 'active'),
-(2, 'bob_jones', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 
+(2, 'bob_jones', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi',
  'bob@email.com', 'Bob Jones', '+1234567892', '1988-08-20', '456 Oak Ave, City', 'active'),
-(2, 'carol_white', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 
- 'carol@email.com', 'Carol White', '+1234567893', '1992-03-10', '789 Pine Rd, City', 'active');
+(2, 'carol_white', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi',
+ 'carol@email.com', 'Carol White', '+1234567893', '1992-03-10', '789 Pine Rd, City', 'active'),
+(2, 'david_brown', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi',
+ 'david@email.com', 'David Brown', '+1234567894', '1990-07-25', '321 Elm St, City', 'active'),
+(2, 'emma_davis', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi',
+ 'emma@email.com', 'Emma Davis', '+1234567895', '1998-11-30', '654 Maple Ave, City', 'active'),
+(2, 'frank_miller', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi',
+ 'frank@email.com', 'Frank Miller', '+1234567896', '1985-04-18', '987 Cedar Ln, City', 'active'),
+(2, 'grace_wilson', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi',
+ 'grace@email.com', 'Grace Wilson', '+1234567897', '2000-09-12', '147 Birch Rd, City', 'active'),
+(2, 'henry_taylor', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi',
+ 'henry@email.com', 'Henry Taylor', '+1234567898', '1993-06-05', '258 Spruce St, City', 'active');
 
--- Sample Memberships
+-- Sample Memberships (Expanded)
 INSERT INTO Memberships (user_id, membership_number, membership_type, issue_date, expiry_date, max_books_allowed)
-VALUES 
-(2, 'MEM001', 'premium', CURDATE(), DATE_ADD(CURDATE(), INTERVAL 12 MONTH), 10),
-(3, 'MEM002', 'basic', CURDATE(), DATE_ADD(CURDATE(), INTERVAL 12 MONTH), 5),
-(4, 'MEM003', 'student', CURDATE(), DATE_ADD(CURDATE(), INTERVAL 6 MONTH), 7);
+VALUES
+(3, 'MEM001', 'premium', DATE_SUB(CURDATE(), INTERVAL 6 MONTH), DATE_ADD(CURDATE(), INTERVAL 6 MONTH), 10),
+(4, 'MEM002', 'basic', DATE_SUB(CURDATE(), INTERVAL 8 MONTH), DATE_ADD(CURDATE(), INTERVAL 4 MONTH), 5),
+(5, 'MEM003', 'student', DATE_SUB(CURDATE(), INTERVAL 3 MONTH), DATE_ADD(CURDATE(), INTERVAL 3 MONTH), 7),
+(6, 'MEM004', 'basic', DATE_SUB(CURDATE(), INTERVAL 10 MONTH), DATE_ADD(CURDATE(), INTERVAL 2 MONTH), 5),
+(7, 'MEM005', 'premium', DATE_SUB(CURDATE(), INTERVAL 4 MONTH), DATE_ADD(CURDATE(), INTERVAL 8 MONTH), 10),
+(8, 'MEM006', 'student', DATE_SUB(CURDATE(), INTERVAL 5 MONTH), DATE_ADD(CURDATE(), INTERVAL 7 MONTH), 7),
+(9, 'MEM007', 'basic', DATE_SUB(CURDATE(), INTERVAL 7 MONTH), DATE_ADD(CURDATE(), INTERVAL 5 MONTH), 5),
+(10, 'MEM008', 'premium', DATE_SUB(CURDATE(), INTERVAL 2 MONTH), DATE_ADD(CURDATE(), INTERVAL 10 MONTH), 10);
 
 -- Sample Categories
 INSERT INTO Categories (category_name, description) VALUES
@@ -1893,50 +1910,288 @@ INSERT INTO Categories (category_name, description) VALUES
 ('Technology', 'Technology and computer science books'),
 ('History', 'Historical books and references'),
 ('Children', 'Books for children and young readers'),
-('Reference', 'Reference materials and encyclopedias');
+('Reference', 'Reference materials and encyclopedias'),
+('Biography', 'Life stories and memoirs'),
+('Self-Help', 'Personal development and motivation'),
+('Mystery', 'Mystery and thriller novels');
 
--- Sample Authors
+-- Sample Authors (Expanded)
 INSERT INTO Authors (author_name, biography, country) VALUES
 ('George Orwell', 'English novelist and essayist', 'United Kingdom'),
 ('J.K. Rowling', 'British author, best known for Harry Potter series', 'United Kingdom'),
 ('Stephen Hawking', 'Theoretical physicist and cosmologist', 'United Kingdom'),
 ('Isaac Asimov', 'Science fiction author and biochemistry professor', 'United States'),
-('Yuval Noah Harari', 'Israeli historian and author', 'Israel');
+('Yuval Noah Harari', 'Israeli historian and author', 'Israel'),
+('Agatha Christie', 'English crime novelist', 'United Kingdom'),
+('Malcolm Gladwell', 'Canadian journalist and author', 'Canada'),
+('Dale Carnegie', 'American writer and lecturer', 'United States'),
+('Dan Brown', 'American author of thriller fiction', 'United States'),
+('Harper Lee', 'American novelist', 'United States'),
+('Ernest Hemingway', 'American novelist and short story writer', 'United States'),
+('Jane Austen', 'English novelist', 'United Kingdom'),
+('Mark Twain', 'American writer and humorist', 'United States'),
+('Arthur Conan Doyle', 'British writer and physician', 'United Kingdom'),
+('Gabriel García Márquez', 'Colombian novelist', 'Colombia');
 
 -- Sample Publishers
 INSERT INTO Publishers (publisher_name, address, phone, email) VALUES
 ('Penguin Random House', '1745 Broadway, New York, NY', '+1-212-782-9000', 'info@penguinrandomhouse.com'),
 ('HarperCollins', '195 Broadway, New York, NY', '+1-212-207-7000', 'info@harpercollins.com'),
 ('Simon & Schuster', '1230 Avenue of the Americas, NY', '+1-212-698-7000', 'info@simonandschuster.com'),
-('Oxford University Press', 'Great Clarendon Street, Oxford', '+44-1865-556767', 'info@oup.com');
+('Oxford University Press', 'Great Clarendon Street, Oxford', '+44-1865-556767', 'info@oup.com'),
+('Macmillan Publishers', '120 Broadway, New York, NY', '+1-646-307-5151', 'info@macmillan.com'),
+('Scholastic', '557 Broadway, New York, NY', '+1-212-343-6100', 'info@scholastic.com');
 
--- Sample Books
+-- Sample Books (Expanded)
 INSERT INTO Books (isbn, title, category_id, publisher_id, publication_year, language, pages, description, shelf_location)
 VALUES
 ('978-0-452-28423-4', '1984', 1, 1, 1949, 'English', 328, 'Dystopian social science fiction novel', 'A-101'),
 ('978-0-7475-3269-9', 'Harry Potter and the Philosopher\'s Stone', 1, 2, 1997, 'English', 223, 'Fantasy novel', 'B-205'),
 ('978-0-553-10953-5', 'A Brief History of Time', 3, 3, 1988, 'English', 256, 'Popular science book', 'C-312'),
 ('978-0-553-29337-0', 'Foundation', 1, 3, 1951, 'English', 255, 'Science fiction novel', 'A-115'),
-('978-0-062-31609-1', 'Sapiens', 5, 2, 2011, 'English', 443, 'History of humankind', 'D-420');
+('978-0-062-31609-1', 'Sapiens', 5, 2, 2011, 'English', 443, 'History of humankind', 'D-420'),
+('978-0-062-07346-0', 'And Then There Were None', 10, 2, 1939, 'English', 272, 'Mystery novel', 'E-101'),
+('978-0-316-01792-3', 'Outliers', 2, 3, 2008, 'English', 309, 'Success psychology', 'F-215'),
+('978-0-671-02738-7', 'How to Win Friends and Influence People', 9, 3, 1936, 'English', 288, 'Self-help classic', 'G-305'),
+('978-0-385-50420-8', 'The Da Vinci Code', 10, 1, 2003, 'English', 454, 'Thriller novel', 'E-120'),
+('978-0-06-112008-4', 'To Kill a Mockingbird', 1, 2, 1960, 'English', 324, 'Classic American literature', 'A-130'),
+('978-0-684-80122-3', 'The Old Man and the Sea', 1, 3, 1952, 'English', 127, 'Novella', 'A-145'),
+('978-0-14-143951-8', 'Pride and Prejudice', 1, 1, 1813, 'English', 432, 'Romantic novel', 'B-310'),
+('978-0-486-28061-8', 'Adventures of Huckleberry Finn', 1, 4, 1884, 'English', 366, 'Adventure novel', 'B-325'),
+('978-0-14-028329-5', 'The Hound of the Baskervilles', 10, 1, 1902, 'English', 256, 'Detective fiction', 'E-135'),
+('978-0-06-088328-7', 'One Hundred Years of Solitude', 1, 2, 1967, 'English', 417, 'Magical realism', 'A-160'),
+('978-0-545-01022-1', 'The Hunger Games', 1, 6, 2008, 'English', 374, 'Dystopian novel', 'B-340'),
+('978-0-439-13959-4', 'Harry Potter and the Goblet of Fire', 1, 6, 2000, 'English', 636, 'Fantasy novel', 'B-206'),
+('978-1-250-01764-7', 'Thinking, Fast and Slow', 3, 5, 2011, 'English', 499, 'Psychology', 'C-420'),
+('978-0-385-33312-0', 'The Subtle Art of Not Giving a F*ck', 9, 2, 2016, 'English', 224, 'Self-help', 'G-310'),
+('978-1-982-13713-4', 'Atomic Habits', 9, 3, 2018, 'English', 320, 'Self-improvement', 'G-315');
 
 -- Link Books to Authors
 INSERT INTO Book_Authors (book_id, author_id, author_order) VALUES
-(1, 1, 1),
-(2, 2, 1),
-(3, 3, 1),
-(4, 4, 1),
-(5, 5, 1);
+(1, 1, 1), (2, 2, 1), (3, 3, 1), (4, 4, 1), (5, 5, 1),
+(6, 6, 1), (7, 7, 1), (8, 8, 1), (9, 9, 1), (10, 10, 1),
+(11, 11, 1), (12, 12, 1), (13, 13, 1), (14, 14, 1), (15, 15, 1),
+(16, 2, 1), (17, 2, 1);
 
--- Sample Book Copies
+-- Sample Book Copies (Expanded - Multiple copies per book)
 INSERT INTO Book_Copies (book_id, copy_number, acquisition_date, condition_status, availability_status, price)
 VALUES
+-- Book 1: 1984
 (1, 'C001', '2023-01-15', 'excellent', 'available', 15.99),
 (1, 'C002', '2023-01-15', 'good', 'available', 15.99),
-(2, 'C003', '2023-02-20', 'excellent', 'available', 19.99),
+(1, 'C003', '2023-01-15', 'excellent', 'available', 15.99),
+-- Book 2: Harry Potter 1
 (2, 'C004', '2023-02-20', 'excellent', 'available', 19.99),
-(3, 'C005', '2023-03-10', 'good', 'available', 18.50),
-(4, 'C006', '2023-04-05', 'excellent', 'available', 16.75),
-(5, 'C007', '2023-05-12', 'excellent', 'available', 22.00);
+(2, 'C005', '2023-02-20', 'good', 'available', 19.99),
+(2, 'C006', '2023-02-20', 'excellent', 'available', 19.99),
+-- Book 3: Brief History
+(3, 'C007', '2023-03-10', 'good', 'available', 18.50),
+(3, 'C008', '2023-03-10', 'excellent', 'available', 18.50),
+-- Book 4: Foundation
+(4, 'C009', '2023-04-05', 'excellent', 'available', 16.75),
+(4, 'C010', '2023-04-05', 'good', 'available', 16.75),
+-- Book 5: Sapiens
+(5, 'C011', '2023-05-12', 'excellent', 'available', 22.00),
+(5, 'C012', '2023-05-12', 'excellent', 'available', 22.00),
+-- Book 6: And Then There Were None
+(6, 'C013', '2023-06-01', 'excellent', 'available', 14.99),
+(6, 'C014', '2023-06-01', 'good', 'available', 14.99),
+-- Book 7: Outliers
+(7, 'C015', '2023-06-15', 'excellent', 'available', 17.99),
+(7, 'C016', '2023-06-15', 'excellent', 'available', 17.99),
+-- Book 8: How to Win Friends
+(8, 'C017', '2023-07-01', 'good', 'available', 12.99),
+(8, 'C018', '2023-07-01', 'excellent', 'available', 12.99),
+-- Book 9: Da Vinci Code
+(9, 'C019', '2023-07-20', 'excellent', 'available', 19.99),
+(9, 'C020', '2023-07-20', 'good', 'available', 19.99),
+-- Book 10: To Kill a Mockingbird
+(10, 'C021', '2023-08-01', 'excellent', 'available', 15.50),
+(10, 'C022', '2023-08-01', 'good', 'available', 15.50),
+-- Book 11: Old Man and the Sea
+(11, 'C023', '2023-08-15', 'excellent', 'available', 11.99),
+(11, 'C024', '2023-08-15', 'good', 'available', 11.99),
+-- Book 12: Pride and Prejudice
+(12, 'C025', '2023-09-01', 'excellent', 'available', 13.99),
+(12, 'C026', '2023-09-01', 'excellent', 'available', 13.99),
+-- Book 13: Huckleberry Finn
+(13, 'C027', '2023-09-10', 'good', 'available', 12.50),
+(13, 'C028', '2023-09-10', 'excellent', 'available', 12.50),
+-- Book 14: Hound of Baskervilles
+(14, 'C029', '2023-09-20', 'excellent', 'available', 14.25),
+(14, 'C030', '2023-09-20', 'good', 'available', 14.25),
+-- Book 15: One Hundred Years
+(15, 'C031', '2023-10-01', 'excellent', 'available', 16.99),
+(15, 'C032', '2023-10-01', 'excellent', 'available', 16.99),
+-- Book 16: Hunger Games
+(16, 'C033', '2023-10-15', 'excellent', 'available', 18.99),
+(16, 'C034', '2023-10-15', 'good', 'available', 18.99),
+-- Book 17: Harry Potter 4
+(17, 'C035', '2023-11-01', 'excellent', 'available', 24.99),
+(17, 'C036', '2023-11-01', 'excellent', 'available', 24.99),
+-- Book 18: Thinking Fast and Slow
+(18, 'C037', '2023-11-15', 'good', 'available', 21.50),
+(18, 'C038', '2023-11-15', 'excellent', 'available', 21.50),
+-- Book 19: Subtle Art
+(19, 'C039', '2023-12-01', 'excellent', 'available', 16.99),
+(19, 'C040', '2023-12-01', 'excellent', 'available', 16.99),
+-- Book 20: Atomic Habits
+(20, 'C041', '2024-01-10', 'excellent', 'available', 18.99),
+(20, 'C042', '2024-01-10', 'excellent', 'available', 18.99);
+
+-- ============================================
+-- SAMPLE BORROWING TRANSACTIONS (For Reports)
+-- ============================================
+
+-- RETURNED TRANSACTIONS (Historical data for reports)
+INSERT INTO Borrowing_Transactions (copy_id, user_id, librarian_id, borrow_date, due_date, return_date, renewal_count, transaction_status, borrow_method)
+VALUES
+-- Alice's borrowing history (Good member - returns on time)
+(1, 3, 1, DATE_SUB(CURDATE(), INTERVAL 60 DAY), DATE_SUB(CURDATE(), INTERVAL 46 DAY), DATE_SUB(CURDATE(), INTERVAL 47 DAY), 0, 'returned', 'counter'),
+(4, 3, 1, DATE_SUB(CURDATE(), INTERVAL 45 DAY), DATE_SUB(CURDATE(), INTERVAL 31 DAY), DATE_SUB(CURDATE(), INTERVAL 32 DAY), 0, 'returned', 'online_request'),
+(7, 3, 1, DATE_SUB(CURDATE(), INTERVAL 30 DAY), DATE_SUB(CURDATE(), INTERVAL 16 DAY), DATE_SUB(CURDATE(), INTERVAL 17 DAY), 0, 'returned', 'counter'),
+(11, 3, 1, DATE_SUB(CURDATE(), INTERVAL 25 DAY), DATE_SUB(CURDATE(), INTERVAL 11 DAY), DATE_SUB(CURDATE(), INTERVAL 12 DAY), 0, 'returned', 'counter'),
+
+-- Bob's borrowing history (Mixed - some late returns)
+(9, 4, 1, DATE_SUB(CURDATE(), INTERVAL 70 DAY), DATE_SUB(CURDATE(), INTERVAL 56 DAY), DATE_SUB(CURDATE(), INTERVAL 52 DAY), 0, 'returned', 'counter'),
+(13, 4, 1, DATE_SUB(CURDATE(), INTERVAL 55 DAY), DATE_SUB(CURDATE(), INTERVAL 41 DAY), DATE_SUB(CURDATE(), INTERVAL 38 DAY), 0, 'returned', 'counter'),
+(19, 4, 2, DATE_SUB(CURDATE(), INTERVAL 40 DAY), DATE_SUB(CURDATE(), INTERVAL 26 DAY), DATE_SUB(CURDATE(), INTERVAL 24 DAY), 0, 'returned', 'online_request'),
+
+-- Carol's borrowing history
+(15, 5, 1, DATE_SUB(CURDATE(), INTERVAL 50 DAY), DATE_SUB(CURDATE(), INTERVAL 36 DAY), DATE_SUB(CURDATE(), INTERVAL 35 DAY), 0, 'returned', 'counter'),
+(21, 5, 2, DATE_SUB(CURDATE(), INTERVAL 35 DAY), DATE_SUB(CURDATE(), INTERVAL 21 DAY), DATE_SUB(CURDATE(), INTERVAL 20 DAY), 0, 'returned', 'self_checkout'),
+
+-- David's borrowing history
+(23, 6, 1, DATE_SUB(CURDATE(), INTERVAL 65 DAY), DATE_SUB(CURDATE(), INTERVAL 51 DAY), DATE_SUB(CURDATE(), INTERVAL 50 DAY), 0, 'returned', 'counter'),
+(25, 6, 2, DATE_SUB(CURDATE(), INTERVAL 48 DAY), DATE_SUB(CURDATE(), INTERVAL 34 DAY), DATE_SUB(CURDATE(), INTERVAL 33 DAY), 0, 'returned', 'counter'),
+
+-- Emma's borrowing history (Popular books reader)
+(2, 7, 1, DATE_SUB(CURDATE(), INTERVAL 80 DAY), DATE_SUB(CURDATE(), INTERVAL 66 DAY), DATE_SUB(CURDATE(), INTERVAL 64 DAY), 0, 'returned', 'counter'),
+(5, 7, 1, DATE_SUB(CURDATE(), INTERVAL 75 DAY), DATE_SUB(CURDATE(), INTERVAL 61 DAY), DATE_SUB(CURDATE(), INTERVAL 60 DAY), 0, 'returned', 'counter'),
+(17, 7, 2, DATE_SUB(CURDATE(), INTERVAL 55 DAY), DATE_SUB(CURDATE(), INTERVAL 41 DAY), DATE_SUB(CURDATE(), INTERVAL 40 DAY), 0, 'returned', 'online_request'),
+(27, 7, 1, DATE_SUB(CURDATE(), INTERVAL 42 DAY), DATE_SUB(CURDATE(), INTERVAL 28 DAY), DATE_SUB(CURDATE(), INTERVAL 27 DAY), 0, 'returned', 'counter'),
+
+-- Frank's borrowing history
+(29, 8, 2, DATE_SUB(CURDATE(), INTERVAL 58 DAY), DATE_SUB(CURDATE(), INTERVAL 44 DAY), DATE_SUB(CURDATE(), INTERVAL 43 DAY), 0, 'returned', 'counter'),
+(31, 8, 1, DATE_SUB(CURDATE(), INTERVAL 38 DAY), DATE_SUB(CURDATE(), INTERVAL 24 DAY), DATE_SUB(CURDATE(), INTERVAL 23 DAY), 0, 'returned', 'counter'),
+
+-- Grace's borrowing history
+(33, 9, 1, DATE_SUB(CURDATE(), INTERVAL 72 DAY), DATE_SUB(CURDATE(), INTERVAL 58 DAY), DATE_SUB(CURDATE(), INTERVAL 57 DAY), 0, 'returned', 'counter'),
+(35, 9, 2, DATE_SUB(CURDATE(), INTERVAL 52 DAY), DATE_SUB(CURDATE(), INTERVAL 38 DAY), DATE_SUB(CURDATE(), INTERVAL 36 DAY), 0, 'returned', 'online_request'),
+
+-- Henry's borrowing history
+(37, 10, 1, DATE_SUB(CURDATE(), INTERVAL 68 DAY), DATE_SUB(CURDATE(), INTERVAL 54 DAY), DATE_SUB(CURDATE(), INTERVAL 53 DAY), 0, 'returned', 'counter'),
+(39, 10, 2, DATE_SUB(CURDATE(), INTERVAL 46 DAY), DATE_SUB(CURDATE(), INTERVAL 32 DAY), DATE_SUB(CURDATE(), INTERVAL 30 DAY), 0, 'returned', 'counter');
+
+-- CURRENTLY BORROWED (Active transactions - on time)
+INSERT INTO Borrowing_Transactions (copy_id, user_id, librarian_id, borrow_date, due_date, return_date, renewal_count, transaction_status, borrow_method)
+VALUES
+-- Currently borrowed - will be returned on time
+(3, 3, 1, DATE_SUB(CURDATE(), INTERVAL 7 DAY), DATE_ADD(CURDATE(), INTERVAL 7 DAY), NULL, 0, 'borrowed', 'counter'),
+(8, 5, 2, DATE_SUB(CURDATE(), INTERVAL 5 DAY), DATE_ADD(CURDATE(), INTERVAL 9 DAY), NULL, 0, 'borrowed', 'online_request'),
+(14, 7, 1, DATE_SUB(CURDATE(), INTERVAL 6 DAY), DATE_ADD(CURDATE(), INTERVAL 8 DAY), NULL, 0, 'borrowed', 'counter'),
+(20, 9, 2, DATE_SUB(CURDATE(), INTERVAL 4 DAY), DATE_ADD(CURDATE(), INTERVAL 10 DAY), NULL, 0, 'borrowed', 'self_checkout'),
+(26, 10, 1, DATE_SUB(CURDATE(), INTERVAL 8 DAY), DATE_ADD(CURDATE(), INTERVAL 6 DAY), NULL, 0, 'borrowed', 'counter');
+
+-- =====================================================
+-- LATE RETURNS - 3 OVERDUE CASES (For Late Fees Feature)
+-- =====================================================
+
+-- CASE 1: Bob Jones - SEVERELY OVERDUE (20 days late)
+-- Borrowed: 34 days ago, Due: 20 days ago, Still not returned
+INSERT INTO Borrowing_Transactions (copy_id, user_id, librarian_id, borrow_date, due_date, return_date, renewal_count, transaction_status, borrow_method)
+VALUES
+(10, 4, 1, DATE_SUB(CURDATE(), INTERVAL 34 DAY), DATE_SUB(CURDATE(), INTERVAL 20 DAY), NULL, 0, 'overdue', 'counter');
+
+-- Auto-generate fine for Bob (20 days * $1.00 = $20.00)
+INSERT INTO Fines (transaction_id, user_id, fine_amount, fine_reason, days_overdue, fine_date, payment_status)
+VALUES
+((SELECT MAX(transaction_id) FROM Borrowing_Transactions WHERE user_id = 4 AND transaction_status = 'overdue'),
+ 4, 20.00, 'Late return penalty', 20, CURDATE(), 'unpaid');
+
+-- CASE 2: David Brown - MODERATELY OVERDUE (10 days late)
+-- Borrowed: 24 days ago, Due: 10 days ago, Still not returned
+INSERT INTO Borrowing_Transactions (copy_id, user_id, librarian_id, borrow_date, due_date, return_date, renewal_count, transaction_status, borrow_method)
+VALUES
+(28, 6, 2, DATE_SUB(CURDATE(), INTERVAL 24 DAY), DATE_SUB(CURDATE(), INTERVAL 10 DAY), NULL, 0, 'overdue', 'online_request');
+
+-- Auto-generate fine for David (10 days * $1.00 = $10.00)
+INSERT INTO Fines (transaction_id, user_id, fine_amount, fine_reason, days_overdue, fine_date, payment_status)
+VALUES
+((SELECT MAX(transaction_id) FROM Borrowing_Transactions WHERE user_id = 6 AND transaction_status = 'overdue'),
+ 6, 10.00, 'Late return penalty', 10, CURDATE(), 'unpaid');
+
+-- CASE 3: Frank Miller - RECENTLY OVERDUE (5 days late)
+-- Borrowed: 19 days ago, Due: 5 days ago, Still not returned
+INSERT INTO Borrowing_Transactions (copy_id, user_id, librarian_id, borrow_date, due_date, return_date, renewal_count, transaction_status, borrow_method)
+VALUES
+(32, 8, 1, DATE_SUB(CURDATE(), INTERVAL 19 DAY), DATE_SUB(CURDATE(), INTERVAL 5 DAY), NULL, 0, 'overdue', 'counter');
+
+-- Auto-generate fine for Frank (5 days * $1.00 = $5.00)
+INSERT INTO Fines (transaction_id, user_id, fine_amount, fine_reason, days_overdue, fine_date, payment_status)
+VALUES
+((SELECT MAX(transaction_id) FROM Borrowing_Transactions WHERE user_id = 8 AND transaction_status = 'overdue'),
+ 8, 5.00, 'Late return penalty', 5, CURDATE(), 'unpaid');
+
+-- Update copy statuses for overdue books
+UPDATE Book_Copies SET availability_status = 'borrowed' WHERE copy_id IN (10, 28, 32);
+
+-- Update copy statuses for currently borrowed books
+UPDATE Book_Copies SET availability_status = 'borrowed' WHERE copy_id IN (3, 8, 14, 20, 26);
+
+-- ============================================
+-- SAMPLE NOTIFICATIONS FOR OVERDUE BOOKS
+-- ============================================
+
+INSERT INTO Notifications (user_id, notification_type, title, message, reference_id, is_read, sent_date)
+VALUES
+-- Notifications for Bob (severely overdue)
+(4, 'overdue', 'Book Overdue - Urgent',
+ 'Your borrowed book "Foundation" is now 20 days overdue. Please return it immediately. Fine: $20.00',
+ (SELECT MAX(transaction_id) FROM Borrowing_Transactions WHERE user_id = 4 AND transaction_status = 'overdue'),
+ FALSE, DATE_SUB(CURDATE(), INTERVAL 15 DAY)),
+
+(4, 'overdue', 'Final Notice - Book Overdue',
+ 'This is a final notice. Your book is severely overdue with a fine of $20.00. Please return immediately.',
+ (SELECT MAX(transaction_id) FROM Borrowing_Transactions WHERE user_id = 4 AND transaction_status = 'overdue'),
+ FALSE, DATE_SUB(CURDATE(), INTERVAL 5 DAY)),
+
+-- Notifications for David (moderately overdue)
+(6, 'overdue', 'Book Overdue',
+ 'Your borrowed book "Adventures of Huckleberry Finn" is 10 days overdue. Current fine: $10.00',
+ (SELECT MAX(transaction_id) FROM Borrowing_Transactions WHERE user_id = 6 AND transaction_status = 'overdue'),
+ FALSE, DATE_SUB(CURDATE(), INTERVAL 7 DAY)),
+
+-- Notifications for Frank (recently overdue)
+(8, 'overdue', 'Book Overdue Notice',
+ 'Your borrowed book "One Hundred Years of Solitude" is 5 days overdue. Current fine: $5.00. Please return soon.',
+ (SELECT MAX(transaction_id) FROM Borrowing_Transactions WHERE user_id = 8 AND transaction_status = 'overdue'),
+ FALSE, DATE_SUB(CURDATE(), INTERVAL 2 DAY)),
+
+-- Due soon reminders for active borrowers
+(3, 'due_reminder', 'Book Due Soon',
+ 'Your borrowed book "1984" is due in 7 days. Please return on time to avoid fines.',
+ (SELECT MAX(transaction_id) FROM Borrowing_Transactions WHERE user_id = 3 AND transaction_status = 'borrowed'),
+ FALSE, DATE_SUB(CURDATE(), INTERVAL 1 DAY)),
+
+(5, 'due_reminder', 'Book Due Soon',
+ 'Your borrowed book "A Brief History of Time" is due in 9 days.',
+ (SELECT MAX(transaction_id) FROM Borrowing_Transactions WHERE user_id = 5 AND transaction_status = 'borrowed'),
+ FALSE, DATE_SUB(CURDATE(), INTERVAL 1 DAY));
+
+-- ============================================
+-- SAMPLE ACTIVITY LOGS (For Audit Trail)
+-- ============================================
+
+INSERT INTO Activity_Logs (user_id, action_type, table_affected, record_id, description, created_at)
+VALUES
+(1, 'BORROW_BOOK', 'Borrowing_Transactions', 1, 'Book borrowed by user_id: 3', DATE_SUB(CURDATE(), INTERVAL 60 DAY)),
+(3, 'RETURN_BOOK', 'Borrowing_Transactions', 1, 'Book returned successfully', DATE_SUB(CURDATE(), INTERVAL 47 DAY)),
+(1, 'BORROW_BOOK', 'Borrowing_Transactions', 2, 'Book borrowed by user_id: 3', DATE_SUB(CURDATE(), INTERVAL 45 DAY)),
+(3, 'RETURN_BOOK', 'Borrowing_Transactions', 2, 'Book returned successfully', DATE_SUB(CURDATE(), INTERVAL 32 DAY)),
+(1, 'FINE_GENERATED', 'Fines', 1, 'Fine generated for overdue book: $20.00', DATE_SUB(CURDATE(), INTERVAL 15 DAY)),
+(1, 'FINE_GENERATED', 'Fines', 2, 'Fine generated for overdue book: $10.00', DATE_SUB(CURDATE(), INTERVAL 7 DAY)),
+(1, 'FINE_GENERATED', 'Fines', 3, 'Fine generated for overdue book: $5.00', DATE_SUB(CURDATE(), INTERVAL 2 DAY));
 
 -- ============================================
 -- DATABASE SETUP COMPLETE!

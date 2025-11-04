@@ -12,6 +12,7 @@
     cursor: pointer;
     transition: transform var(--transition-fast), background var(--transition-base);
     box-shadow: var(--shadow-button);
+    text-decoration: none; /* ensure links styled as buttons have no underline */
 }
 
 .btn-primary:hover {
@@ -23,8 +24,8 @@
 }
 
 .btn-secondary {
-    background: var(--color-border);
-    color: #374151;
+    background: var(--color-primary);
+    color: var(--color-white);
     border: 0;
     border-radius: var(--radius-sm);
     padding: var(--spacing-sm) .875rem; /* smaller */
@@ -34,10 +35,11 @@
     font-size: .9375rem; /* slightly smaller */
     font-weight: 600;
     cursor: pointer;
+    text-decoration: none; /* remove underline for anchors */
 }
 
 .btn-secondary:hover {
-    background: var(--color-border-light);
+    background: var(--color-primary-dark);
 }
 
 .btn-icon {
