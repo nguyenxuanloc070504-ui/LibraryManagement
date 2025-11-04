@@ -66,6 +66,10 @@
 
         <div class="nav-section">
             <div class="nav-section-title">Borrowing & Returning</div>
+            <a href="<%= contextPath %>/transaction/requests" class="nav-item <%= "transaction-requests".equals(activeItem) ? "active" : "" %>">
+                <i class="fa-solid fa-inbox"></i>
+                <span>Borrow Requests</span>
+            </a>
             <a href="<%= contextPath %>/transaction/lend" class="nav-item <%= "transaction-lend".equals(activeItem) ? "active" : "" %>">
                 <i class="fa-solid fa-hand-holding"></i>
                 <span>Lend Book</span>

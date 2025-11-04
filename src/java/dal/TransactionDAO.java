@@ -24,20 +24,23 @@ public class TransactionDAO extends DBContext {
     public LendBookResult lendBook(int userId, int bookId, int librarianId) throws SQLException {
         String sql = "{CALL sp_borrow_book(?, ?, ?, ?, ?)}";
         try (CallableStatement cs = connection.prepareCall(sql)) {
+            // Register OUT parameters first
+            cs.registerOutParameter(4, Types.VARCHAR);
+            cs.registerOutParameter(5, Types.INTEGER);
+
+            // Then set IN parameters
             cs.setInt(1, userId);
             cs.setInt(2, bookId);
             cs.setInt(3, librarianId);
-            cs.registerOutParameter(4, Types.VARCHAR);
-            cs.registerOutParameter(5, Types.INTEGER);
-            
+
             cs.execute();
-            
+
             String result = cs.getString(4);
             Integer transactionId = cs.getInt(5);
             if (cs.wasNull()) {
                 transactionId = null;
             }
-            
+
             boolean success = result != null && result.startsWith("Success");
             return new LendBookResult(success, result != null ? result : "Unknown error", transactionId);
         }
@@ -61,11 +64,14 @@ public class TransactionDAO extends DBContext {
     public ReturnBookResult returnBook(int transactionId, String conditionStatus) throws SQLException {
         String sql = "{CALL sp_return_book(?, ?, ?, ?)}";
         try (CallableStatement cs = connection.prepareCall(sql)) {
-            cs.setInt(1, transactionId);
-            cs.setString(2, conditionStatus);
+            // Register OUT parameters first
             cs.registerOutParameter(3, Types.VARCHAR);
             cs.registerOutParameter(4, Types.DECIMAL);
-            
+
+            // Then set IN parameters
+            cs.setInt(1, transactionId);
+            cs.setString(2, conditionStatus);
+
             cs.execute();
             
             String result = cs.getString(3);
@@ -99,6 +105,7 @@ public class TransactionDAO extends DBContext {
         public String transactionStatus;
         public int daysOverdue;
         public java.math.BigDecimal potentialFine;
+        public java.sql.Timestamp scheduledReturnDate;
     }
 
     public List<BorrowingDetail> getCurrentBorrowings() throws SQLException {
@@ -113,11 +120,13 @@ public class TransactionDAO extends DBContext {
                      "    DATEDIFF(CURDATE(), bt.due_date) * " +
                      "    (SELECT CAST(setting_value AS DECIMAL(10,2)) FROM System_Settings WHERE setting_key = 'fine_per_day') " +
                      "  ELSE 0 " +
-                     "END as potential_fine " +
+                     "END as potential_fine, " +
+                     "rs.scheduled_return_date " +
                      "FROM Borrowing_Transactions bt " +
                      "JOIN Users u ON bt.user_id = u.user_id " +
                      "JOIN Book_Copies bc ON bt.copy_id = bc.copy_id " +
                      "JOIN Books b ON bc.book_id = b.book_id " +
+                     "LEFT JOIN Return_Schedules rs ON rs.transaction_id = bt.transaction_id " +
                      "WHERE bt.transaction_status IN ('borrowed', 'overdue') " +
                      "ORDER BY bt.due_date ASC";
         try (PreparedStatement ps = connection.prepareStatement(sql);
@@ -139,6 +148,7 @@ public class TransactionDAO extends DBContext {
                 detail.transactionStatus = rs.getString("transaction_status");
                 detail.daysOverdue = rs.getInt("days_overdue");
                 detail.potentialFine = rs.getBigDecimal("potential_fine");
+                try { detail.scheduledReturnDate = rs.getTimestamp("scheduled_return_date"); } catch (SQLException ignore) {}
                 results.add(detail);
             }
         }
@@ -473,11 +483,13 @@ public class TransactionDAO extends DBContext {
                      "    DATEDIFF(CURDATE(), bt.due_date) * " +
                      "    (SELECT CAST(setting_value AS DECIMAL(10,2)) FROM System_Settings WHERE setting_key = 'fine_per_day') " +
                      "  ELSE 0 " +
-                     "END as potential_fine " +
+                     "END as potential_fine, " +
+                     "rs.scheduled_return_date " +
                      "FROM Borrowing_Transactions bt " +
                      "JOIN Users u ON bt.user_id = u.user_id " +
                      "JOIN Book_Copies bc ON bt.copy_id = bc.copy_id " +
                      "JOIN Books b ON bc.book_id = b.book_id " +
+                     "LEFT JOIN Return_Schedules rs ON rs.transaction_id = bt.transaction_id " +
                      "WHERE bt.user_id = ? AND bt.transaction_status IN ('borrowed', 'overdue') " +
                      "ORDER BY bt.due_date ASC";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -500,6 +512,7 @@ public class TransactionDAO extends DBContext {
                     detail.transactionStatus = rs.getString("transaction_status");
                     detail.daysOverdue = rs.getInt("days_overdue");
                     detail.potentialFine = rs.getBigDecimal("potential_fine");
+                    try { detail.scheduledReturnDate = rs.getTimestamp("scheduled_return_date"); } catch (SQLException ignore) {}
                     results.add(detail);
                 }
             }

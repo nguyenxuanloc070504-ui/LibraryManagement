@@ -166,32 +166,7 @@
         <url-pattern>/books/detail</url-pattern>
     </servlet-mapping>
 
-    <servlet>
-        <servlet-name>ReserveBookServlet</servlet-name>
-        <servlet-class>controller.reservation.ReserveBookServlet</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>ReserveBookServlet</servlet-name>
-        <url-pattern>/books/reserve</url-pattern>
-    </servlet-mapping>
-
-    <servlet>
-        <servlet-name>CancelReservationServlet</servlet-name>
-        <servlet-class>controller.reservation.CancelReservationServlet</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>CancelReservationServlet</servlet-name>
-        <url-pattern>/books/cancel-reservation</url-pattern>
-    </servlet-mapping>
-
-    <servlet>
-        <servlet-name>MyReservationsServlet</servlet-name>
-        <servlet-class>controller.reservation.MyReservationsServlet</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>MyReservationsServlet</servlet-name>
-        <url-pattern>/books/my-reservations</url-pattern>
-    </servlet-mapping>
+    
 
     <servlet>
         <servlet-name>ViewBorrowingHistoryServlet</servlet-name>
@@ -220,23 +195,7 @@
         <url-pattern>/personal/request-renewal</url-pattern>
     </servlet-mapping>
 
-    <servlet>
-        <servlet-name>ViewNotificationsServlet</servlet-name>
-        <servlet-class>controller.personal.ViewNotificationsServlet</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>ViewNotificationsServlet</servlet-name>
-        <url-pattern>/personal/notifications</url-pattern>
-    </servlet-mapping>
-
-    <servlet>
-        <servlet-name>MarkNotificationReadServlet</servlet-name>
-        <servlet-class>controller.personal.MarkNotificationReadServlet</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>MarkNotificationReadServlet</servlet-name>
-        <url-pattern>/personal/mark-notification-read</url-pattern>
-    </servlet-mapping>
+    
 
     <servlet>
         <servlet-name>ReportsServlet</servlet-name>
@@ -256,6 +215,34 @@
         <url-pattern>/reports/overdue-books</url-pattern>
     </servlet-mapping>
 
+    <!-- Transaction: Borrow Requests (create/cancel/manage) -->
+    <servlet>
+        <servlet-name>CreateBorrowRequestServlet</servlet-name>
+        <servlet-class>controller.transaction.CreateBorrowRequestServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>CreateBorrowRequestServlet</servlet-name>
+        <url-pattern>/transaction/request</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>CancelBorrowRequestServlet</servlet-name>
+        <servlet-class>controller.transaction.CancelBorrowRequestServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>CancelBorrowRequestServlet</servlet-name>
+        <url-pattern>/transaction/cancel-request</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>BorrowRequestsServlet</servlet-name>
+        <servlet-class>controller.transaction.BorrowRequestsServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>BorrowRequestsServlet</servlet-name>
+        <url-pattern>/transaction/requests</url-pattern>
+    </servlet-mapping>
+
     <servlet>
         <servlet-name>SendRemindersServlet</servlet-name>
         <servlet-class>controller.reports.SendRemindersServlet</servlet-class>
@@ -263,6 +250,35 @@
     <servlet-mapping>
         <servlet-name>SendRemindersServlet</servlet-name>
         <url-pattern>/reports/send-reminders</url-pattern>
+    </servlet-mapping>
+
+    <!-- Notifications APIs -->
+
+    <servlet>
+        <servlet-name>LatestNotificationsServlet</servlet-name>
+        <servlet-class>controller.notifications.LatestNotificationsServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>LatestNotificationsServlet</servlet-name>
+        <url-pattern>/api/notifications/latest</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>NotificationsServlet</servlet-name>
+        <servlet-class>controller.notifications.NotificationsServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>NotificationsServlet</servlet-name>
+        <url-pattern>/notifications</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>MarkReadServlet</servlet-name>
+        <servlet-class>controller.notifications.MarkReadServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>MarkReadServlet</servlet-name>
+        <url-pattern>/notifications/mark-read</url-pattern>
     </servlet-mapping>
 
 </web-app>

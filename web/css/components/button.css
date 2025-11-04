@@ -152,7 +152,8 @@
 
 /* Button modifiers for inline forms */
 .btn-primary.inline-btn,
-.btn-secondary.inline-btn {
+.btn-secondary.inline-btn,
+.btn-danger.inline-btn {
     width: auto;
     white-space: nowrap;
     padding: var(--spacing-md) 1rem;
@@ -163,4 +164,11 @@
 
 .btn-secondary.no-underline {
     text-decoration: none;
+}
+
+/* Consistent icon spacing for inline buttons */
+.btn-primary.inline-btn i,
+.btn-secondary.inline-btn i,
+.btn-danger.inline-btn i {
+    margin-right: .5rem;
 }

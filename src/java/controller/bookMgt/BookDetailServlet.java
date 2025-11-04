@@ -1,7 +1,7 @@
 package controller.bookMgt;
 
 import dal.BookDAO;
-import dal.ReservationDAO;
+import dal.BorrowRequestDAO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -18,7 +18,7 @@ public class BookDetailServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String bookIdParam = request.getParameter("id");
-        
+
         if (bookIdParam == null || bookIdParam.trim().isEmpty()) {
             request.setAttribute("error", "Book ID is required.");
             response.sendRedirect(request.getContextPath() + "/books");
@@ -35,8 +35,8 @@ public class BookDetailServlet extends HttpServlet {
         }
 
         BookDAO bookDAO = new BookDAO();
-        ReservationDAO reservationDAO = new ReservationDAO();
-        
+        BorrowRequestDAO borrowRequestDAO = new BorrowRequestDAO();
+
         try {
             BookDAO.BookDetail book = bookDAO.findBookById(bookId);
             if (book == null) {
@@ -44,25 +44,30 @@ public class BookDetailServlet extends HttpServlet {
                 response.sendRedirect(request.getContextPath() + "/books");
                 return;
             }
-            
+
             request.setAttribute("book", book);
-            
-            // Check if user has active reservation
+
+            // Check if user has active reservation or borrow request
             Integer userId = (Integer) request.getSession().getAttribute("authUserId");
             if (userId != null) {
-                boolean hasReservation = reservationDAO.hasActiveReservation(bookId, userId);
-                request.setAttribute("hasReservation", hasReservation);
+                // Reservations feature removed; always false
+                request.setAttribute("hasReservation", false);
+
+                // Check for pending borrow request
+                BorrowRequestDAO.BorrowRequestDetail borrowRequest = borrowRequestDAO.getPendingRequest(bookId, userId);
+                request.setAttribute("borrowRequest", borrowRequest);
             } else {
                 request.setAttribute("hasReservation", false);
+                request.setAttribute("borrowRequest", null);
             }
-            
+
         } catch (SQLException e) {
             request.setAttribute("error", "Database error: " + e.getMessage());
         } finally {
             bookDAO.close();
-            reservationDAO.close();
+            borrowRequestDAO.close();
         }
-        
+
         request.getRequestDispatcher("/bookMgt/book-detail.jsp").forward(request, response);
     }
 }

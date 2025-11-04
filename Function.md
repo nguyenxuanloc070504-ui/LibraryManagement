@@ -2,7 +2,9 @@
 - Librarian - Manages all library operations
 - Reader/Member - Uses library services
 
-FEATURE 1: MEMBER MANAGEMENT (Librarian)
+---
+
+FEATURE 1: MEMBER MANAGEMENT (Librarian) - Done
 - Register New Member - Create account for readers, store personal information, issue library card
 - Update Member Information - Edit contact details, address, profile photo of members
 - Renew Membership - Extend library card validity period for members
@@ -10,7 +12,7 @@ FEATURE 1: MEMBER MANAGEMENT (Librarian)
 
 ---
 
-FEATURE 2: BOOK MANAGEMENT (Librarian)
+FEATURE 2: BOOK MANAGEMENT (Librarian) - Done
 - Add New Book - Enter new book information, ISBN, author, publisher, quantity
 - Update Book Information - Edit book details, status, shelf location
 - Remove Book from System - Delete damaged or obsolete books
@@ -18,31 +20,45 @@ FEATURE 2: BOOK MANAGEMENT (Librarian)
 
 ---
 
-FEATURE 3: BORROWING & RETURNING (Librarian)
-- Lend Book - Process book borrowing requests, update book status and due date
-- Return Book - Receive returned books, check condition, update system
-- Renew Borrowed Book - Extend borrowing period if book is not reserved
+FEATURE 3: Transaction Management (Librarian + Reader) - Done
+
+Librarian Actions:
+- Lend Book (Counter Service) - Process book borrowing requests at counter, update book status and due date
+- Return Book (Counter Service) - Receive returned books at counter, check condition, update system
+- Process Borrow Requests - Review and approve/reject online borrow requests from readers
+- Confirm Book Pickup - Verify and confirm when reader picks up approved book
+
+Reader Actions:
+- Request to Borrow Book - Submit online borrowing request, wait for librarian approval and pickup notification
+- Schedule Book Return - Notify library about planned return date/time for better preparation
+
+---
+
+FEATURE 4: RENEWAL SYSTEM (Librarian + Reader)
+
+Librarian Actions:
+- Renew Borrowed Book (Direct) - Directly extend borrowing period if book is not reserved
+
+Reader Actions:
+- Request Online Renewal - Submit renewal request for borrowed books through system, wait for approval
+
+---
+
+FEATURE 5: LATE FEES MANAGEMENT (Librarian)
 - Process Late Fees - Calculate and collect fines when members return books overdue
+- Waive Fines - Waive or reduce fines for valid reasons
+- Generate Fine Reports - View and export fine collection reports
 
----
-
-FEATURE 4: SEARCH & RESERVATION (Reader)
-- Search Books - Look up books by title, author, genre, ISBN in the system
-- View Book Details - View complete book information, availability status, location
-- Reserve Book - Register to reserve borrowed books for pickup when available
-- Cancel Reservation - Cancel registered book reservation request
-
----
-
-FEATURE 5: PERSONAL MANAGEMENT (Reader)
-- View Borrowing History - Check previously borrowed books, borrowing date, return date
-- View Current Borrowed Books - Check list of currently borrowed books and due dates
-- Request Online Renewal - Submit renewal request for borrowed books through system
-- View Notifications - Receive notifications about due dates, reserved books availability
-
----
 
 FEATURE 6: REPORTS & STATISTICS (Librarian)
 - Generate Statistical Reports - Statistics on borrowed books, active members, popular books
 - Manage Overdue Books - View list of overdue books, send reminders to members
+- View Dashboard Analytics - Real-time overview of library operations (total books, current borrows, overdue count, etc.)
+- Export Data Reports - Export reports in various formats (PDF, Excel, CSV)
+
+---
+
+FEATURE 7: NOTIFICATION(Reade) - Done
+- View list
+- View detail
 

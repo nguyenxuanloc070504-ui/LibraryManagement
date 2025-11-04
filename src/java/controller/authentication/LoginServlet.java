@@ -42,8 +42,8 @@ public class LoginServlet extends HttpServlet {
             String trimmedUsername = username.trim();
             System.out.println("Searching for user with username or email: [" + trimmedUsername + "]");
             
-            // Try to find by username or email (supports both login methods)
-            AuthenticationDAO.AuthUser user = dao.findLibrarianByUsernameOrEmail(trimmedUsername);
+            // Try to find by username or email (supports both roles)
+            AuthenticationDAO.AuthUser user = dao.findUserByUsernameOrEmail(trimmedUsername);
             if (user == null) {
                 System.out.println("ERROR: User not found in database");
                 request.setAttribute("error", "Invalid username or password.");
@@ -69,8 +69,12 @@ public class LoginServlet extends HttpServlet {
                 session.setAttribute("authUserId", user.userId);
                 session.setAttribute("authUsername", user.username);
                 session.setAttribute("authFullName", user.fullName);
-                session.setAttribute("authRole", "Librarian");
-                response.sendRedirect(request.getContextPath() + "/dashboard");
+                session.setAttribute("authRole", user.roleName);
+                if ("Librarian".equalsIgnoreCase(user.roleName)) {
+                    response.sendRedirect(request.getContextPath() + "/dashboard");
+                } else {
+                    response.sendRedirect(request.getContextPath() + "/home");
+                }
             } else {
                 System.out.println("ERROR: Password verification failed");
                 request.setAttribute("error", "Invalid username or password.");

@@ -3,6 +3,12 @@
 <%@ page import="dal.ReservationDAO" %>
 <%@ page import="model.Category" %>
 <%@ page import="java.util.List" %>
+<%
+    // Get user role from session
+    String userRole = (String) session.getAttribute("authRole");
+    boolean isMember = "Member".equalsIgnoreCase(userRole);
+    boolean isLibrarian = "Librarian".equalsIgnoreCase(userRole) || "Administrator".equalsIgnoreCase(userRole);
+%>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,21 +16,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Search Books</title>
     <link rel="stylesheet" href="<%= request.getContextPath() %>/css/main.css">
+    <% if (isMember) { %>
+    <link rel="stylesheet" href="<%= request.getContextPath() %>/css/pages/home.css">
+    <% } %>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body>
-<div class="layout">
+<body class="<%= isMember ? "home-page" : "" %>">
+<div class="<%= isMember ? "" : "layout" %>">
+    <% if (isLibrarian) { %>
     <jsp:include page="/components/sidebar.jsp">
         <jsp:param name="activeItem" value="book-list"/>
     </jsp:include>
+    <% } %>
 
-    <main class="content">
+    <main class="<%= isMember ? "" : "content" %>">
+        <% if (isMember) { %>
+        <jsp:include page="/components/header-member.jsp">
+            <jsp:param name="activeTab" value="books"/>
+        </jsp:include>
+        <% } else { %>
         <jsp:include page="/components/header.jsp">
             <jsp:param name="pageTitle" value="Book List"/>
             <jsp:param name="pageSubtitle" value="Browse all books in the library"/>
         </jsp:include>
+        <% } %>
 
-        <div class="main-content">
+        <div class="<%= isMember ? "container" : "main-content" %>" style="<%= isMember ? "padding-top: 2rem; padding-bottom: 2rem;" : "" %>">
             <% if (request.getAttribute("error") != null) { %>
                 <div class="alert-error"><%= request.getAttribute("error") %></div>
             <% } %>

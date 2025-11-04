@@ -35,3 +35,9 @@
     color: #6b7280;
 }
 
+/* Pending (warning) */
+.status-badge.status-pending {
+    background: #fef3c7; /* amber-100 */
+    color: #92400e;      /* amber-800 */
+}
+

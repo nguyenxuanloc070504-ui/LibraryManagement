@@ -12,83 +12,15 @@
 </head>
 <body>
 <div class="layout">
-    <aside class="sidebar">
-        <div class="brand-small">Library Management System</div>
-        <nav class="nav">
-            <div class="nav-section">
-                <div class="nav-section-title">Main Menu</div>
-                <a href="<%= request.getContextPath() %>/dashboard" class="nav-item">
-                    <i class="fa-solid fa-chart-line"></i>
-                    <span>Dashboard</span>
-                </a>
-            </div>
-            <div class="nav-section">
-                <div class="nav-section-title">Member Management</div>
-                <a href="<%= request.getContextPath() %>/member/register" class="nav-item">
-                    <i class="fa-solid fa-user-plus"></i>
-                    <span>Register New Member</span>
-                </a>
-                <a href="<%= request.getContextPath() %>/member/update" class="nav-item">
-                    <i class="fa-solid fa-user-pen"></i>
-                    <span>Update Member</span>
-                </a>
-                <a href="<%= request.getContextPath() %>/member/renew" class="nav-item">
-                    <i class="fa-solid fa-rotate"></i>
-                    <span>Renew Membership</span>
-                </a>
-                <a href="<%= request.getContextPath() %>/member/lock-unlock" class="nav-item">
-                    <i class="fa-solid fa-user-lock"></i>
-                    <span>Lock/Unlock Account</span>
-                </a>
-            </div>
-            <div class="nav-section">
-                <div class="nav-section-title">Book Management</div>
-                <a href="<%= request.getContextPath() %>/book/add" class="nav-item">
-                    <i class="fa-solid fa-book-medical"></i>
-                    <span>Add New Book</span>
-                </a>
-                <a href="<%= request.getContextPath() %>/book/update" class="nav-item">
-                    <i class="fa-solid fa-pen-to-square"></i>
-                    <span>Update Book</span>
-                </a>
-                <a href="<%= request.getContextPath() %>/book/remove" class="nav-item">
-                    <i class="fa-solid fa-trash-can"></i>
-                    <span>Remove Book</span>
-                </a>
-                <a href="<%= request.getContextPath() %>/book/categories" class="nav-item">
-                    <i class="fa-solid fa-layer-group"></i>
-                    <span>Manage Categories</span>
-                </a>
-            </div>
-            <div class="nav-section">
-                <div class="nav-section-title">Borrowing & Returning</div>
-                <a href="<%= request.getContextPath() %>/transaction/lend" class="nav-item">
-                    <i class="fa-solid fa-hand-holding"></i>
-                    <span>Lend Book</span>
-                </a>
-                <a href="<%= request.getContextPath() %>/transaction/return" class="nav-item active">
-                    <i class="fa-solid fa-arrow-rotate-left"></i>
-                    <span>Return Book</span>
-                </a>
-                <a href="<%= request.getContextPath() %>/transaction/renew" class="nav-item">
-                    <i class="fa-solid fa-rotate-right"></i>
-                    <span>Renew Book</span>
-                </a>
-                <a href="<%= request.getContextPath() %>/transaction/fines" class="nav-item">
-                    <i class="fa-solid fa-dollar-sign"></i>
-                    <span>Process Late Fees</span>
-                </a>
-            </div>
-        </nav>
-    </aside>
+    <jsp:include page="/components/sidebar.jsp">
+        <jsp:param name="activeItem" value="transaction-return"/>
+    </jsp:include>
 
     <main class="content">
-        <header class="content-header">
-            <div>
-                <h1 class="page-title">Return Book</h1>
-                <p class="page-subtitle">Receive returned books, check condition, update system</p>
-            </div>
-        </header>
+        <jsp:include page="/components/header.jsp">
+            <jsp:param name="pageTitle" value="Return Book"/>
+            <jsp:param name="pageSubtitle" value="Receive returned books, check condition, update system"/>
+        </jsp:include>
 
         <div class="main-content">
             <% if (request.getAttribute("success") != null) { %>
@@ -115,13 +47,18 @@
                     <form method="get" action="<%= request.getContextPath() %>/transaction/return" class="auth-form">
                         <div class="form-field">
                             <label class="label-muted">Search</label>
-                            <div class="input box">
-                                <input type="text" name="search" placeholder="Enter search term" 
-                                       value="<%= request.getParameter("search") != null ? request.getParameter("search") : "" %>" required />
+                            <div style="display: flex; gap: 0.75rem; align-items: stretch;">
+                                <div class="input box" style="flex: 1;">
+                                    <input type="text" name="search" placeholder="Enter search term"
+                                           value="<%= request.getParameter("search") != null ? request.getParameter("search") : "" %>" required />
+                                </div>
+                                <button class="btn-primary inline-btn" type="submit">
+                                    <i class="fa-solid fa-search"></i> Search
+                                </button>
+                                <button class="btn-secondary inline-btn" type="button" onclick="window.location.href='<%= request.getContextPath() %>/transaction/return'">
+                                    <i class="fa-solid fa-times"></i> Clear
+                                </button>
                             </div>
-                        </div>
-                        <div class="form-actions">
-                            <button class="btn-primary" type="submit" style="width:auto;">Search</button>
                         </div>
                     </form>
                 </section>
@@ -269,15 +206,35 @@
                         </div>
                         
                         <div class="form-actions">
-                            <button class="btn-primary" type="submit" style="width:auto;">Confirm Return</button>
+                            <button class="btn-primary" type="button" data-modal-open="confirmReturnModal" style="width:auto;">Confirm Return</button>
                             <a href="<%= request.getContextPath() %>/transaction/return" class="btn-secondary">Cancel</a>
                         </div>
                     </form>
+
+                    <!-- Confirm Return Modal -->
+                    <div class="modal" id="confirmReturnModal">
+                        <div class="modal-overlay">
+                            <div class="modal-dialog">
+                                <div class="modal-header" style="text-align:center;">Confirm Return</div>
+                                <div class="modal-body">
+                                    <p>Confirm receiving the book <strong><%= borrowing.bookTitle %></strong> from <strong><%= borrowing.memberName %></strong>?</p>
+                                    <p class="muted" style="margin:.5rem 0 0;">This will update the transaction and free the copy for lending.</p>
+                                </div>
+                                <div class="modal-actions" style="justify-content:center;">
+                                    <button class="btn-secondary" data-modal-close>Cancel</button>
+                                    <button class="btn-icon-text" onclick="document.querySelector('form[action$=\'/transaction/return\']').submit();">
+                                        <i class="fa-solid fa-arrow-rotate-left"></i> Confirm
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </section>
             <% } %>
         </div>
     </main>
 </div>
+<script src="<%= request.getContextPath() %>/js/components/modal.js"></script>
 <script src="<%= request.getContextPath() %>/js/utils/validate.js"></script>
 <script src="<%= request.getContextPath() %>/js/utils/format.js"></script>
 <script src="<%= request.getContextPath() %>/js/components/dropdown.js"></script>

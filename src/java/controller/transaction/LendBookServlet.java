@@ -17,19 +17,11 @@ public class LendBookServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String bookSearch = request.getParameter("book_search");
-        String memberSearch = request.getParameter("member_search");
-        
         TransactionDAO dao = new TransactionDAO();
         try {
-            if (bookSearch != null && !bookSearch.trim().isEmpty()) {
-                request.setAttribute("bookResults", dao.searchAvailableBooks(bookSearch));
-                request.setAttribute("bookSearch", bookSearch);
-            }
-            if (memberSearch != null && !memberSearch.trim().isEmpty()) {
-                request.setAttribute("memberResults", dao.searchMembersForLending(memberSearch));
-                request.setAttribute("memberSearch", memberSearch);
-            }
+            // Load all available books and active members for dropdowns
+            request.setAttribute("availableBooks", dao.searchAvailableBooks(""));
+            request.setAttribute("activeMembers", dao.searchMembersForLending(""));
             request.setAttribute("currentBorrowings", dao.getCurrentBorrowings());
         } catch (SQLException e) {
             request.setAttribute("error", "Database error: " + e.getMessage());
@@ -47,11 +39,13 @@ public class LendBookServlet extends HttpServlet {
         String userIdParam = request.getParameter("user_id");
         String bookIdParam = request.getParameter("book_id");
         
-        if (userIdParam == null || userIdParam.trim().isEmpty() || 
+        if (userIdParam == null || userIdParam.trim().isEmpty() ||
             bookIdParam == null || bookIdParam.trim().isEmpty()) {
             request.setAttribute("error", "User ID and Book ID are required.");
             TransactionDAO dao = new TransactionDAO();
             try {
+                request.setAttribute("availableBooks", dao.searchAvailableBooks(""));
+                request.setAttribute("activeMembers", dao.searchMembersForLending(""));
                 request.setAttribute("currentBorrowings", dao.getCurrentBorrowings());
             } catch (SQLException ignored) {}
             finally {
@@ -69,6 +63,8 @@ public class LendBookServlet extends HttpServlet {
             request.setAttribute("error", "Invalid user ID or book ID.");
             TransactionDAO dao = new TransactionDAO();
             try {
+                request.setAttribute("availableBooks", dao.searchAvailableBooks(""));
+                request.setAttribute("activeMembers", dao.searchMembersForLending(""));
                 request.setAttribute("currentBorrowings", dao.getCurrentBorrowings());
             } catch (SQLException ignored) {}
             finally {
@@ -84,6 +80,8 @@ public class LendBookServlet extends HttpServlet {
             request.setAttribute("error", "Librarian session not found. Please login again.");
             TransactionDAO dao = new TransactionDAO();
             try {
+                request.setAttribute("availableBooks", dao.searchAvailableBooks(""));
+                request.setAttribute("activeMembers", dao.searchMembersForLending(""));
                 request.setAttribute("currentBorrowings", dao.getCurrentBorrowings());
             } catch (SQLException ignored) {}
             finally {
@@ -101,10 +99,14 @@ public class LendBookServlet extends HttpServlet {
             } else {
                 request.setAttribute("error", result.message);
             }
+            request.setAttribute("availableBooks", dao.searchAvailableBooks(""));
+            request.setAttribute("activeMembers", dao.searchMembersForLending(""));
             request.setAttribute("currentBorrowings", dao.getCurrentBorrowings());
         } catch (SQLException e) {
             request.setAttribute("error", "Database error: " + e.getMessage());
             try {
+                request.setAttribute("availableBooks", dao.searchAvailableBooks(""));
+                request.setAttribute("activeMembers", dao.searchMembersForLending(""));
                 request.setAttribute("currentBorrowings", dao.getCurrentBorrowings());
             } catch (SQLException ignored) {}
         } finally {

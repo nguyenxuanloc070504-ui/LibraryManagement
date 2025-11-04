@@ -237,6 +237,26 @@ public class BookDAO extends DBContext {
         public List<String> authorNames;
         public int totalCopies;
         public int availableCopies;
+
+        // Getter methods for JSP EL
+        public int getBookId() { return bookId; }
+        public String getIsbn() { return isbn; }
+        public String getTitle() { return title; }
+        public Integer getCategoryId() { return categoryId; }
+        public String getCategoryName() { return categoryName; }
+        public Integer getPublisherId() { return publisherId; }
+        public String getPublisherName() { return publisherName; }
+        public Integer getPublicationYear() { return publicationYear; }
+        public String getEdition() { return edition; }
+        public String getLanguage() { return language; }
+        public Integer getPages() { return pages; }
+        public String getDescription() { return description; }
+        public String getShelfLocation() { return shelfLocation; }
+        public String getCoverImage() { return coverImage; }
+        public List<Integer> getAuthorIds() { return authorIds; }
+        public List<String> getAuthorNames() { return authorNames; }
+        public int getTotalCopies() { return totalCopies; }
+        public int getAvailableCopies() { return availableCopies; }
     }
 
     public BookDetail findBookById(int bookId) throws SQLException {
@@ -341,6 +361,24 @@ public class BookDAO extends DBContext {
                     detail.coverImage = rs.getString("cover_image");
                     detail.totalCopies = rs.getInt("total_copies");
                     detail.availableCopies = rs.getInt("available_copies");
+
+                    // Get authors for this book
+                    detail.authorIds = new ArrayList<>();
+                    detail.authorNames = new ArrayList<>();
+                    String authorSql = "SELECT a.author_id, a.author_name " +
+                                      "FROM Book_Authors ba " +
+                                      "JOIN Authors a ON ba.author_id = a.author_id " +
+                                      "WHERE ba.book_id = ? ORDER BY ba.author_order";
+                    try (PreparedStatement psAuthor = connection.prepareStatement(authorSql)) {
+                        psAuthor.setInt(1, detail.bookId);
+                        try (ResultSet rsAuthor = psAuthor.executeQuery()) {
+                            while (rsAuthor.next()) {
+                                detail.authorIds.add(rsAuthor.getInt("author_id"));
+                                detail.authorNames.add(rsAuthor.getString("author_name"));
+                            }
+                        }
+                    }
+
                     results.add(detail);
                 }
             }
@@ -377,6 +415,24 @@ public class BookDAO extends DBContext {
                 detail.coverImage = rs.getString("cover_image");
                 detail.totalCopies = rs.getInt("total_copies");
                 detail.availableCopies = rs.getInt("available_copies");
+
+                // Get authors for this book
+                detail.authorIds = new ArrayList<>();
+                detail.authorNames = new ArrayList<>();
+                String authorSql = "SELECT a.author_id, a.author_name " +
+                                  "FROM Book_Authors ba " +
+                                  "JOIN Authors a ON ba.author_id = a.author_id " +
+                                  "WHERE ba.book_id = ? ORDER BY ba.author_order";
+                try (PreparedStatement psAuthor = connection.prepareStatement(authorSql)) {
+                    psAuthor.setInt(1, detail.bookId);
+                    try (ResultSet rsAuthor = psAuthor.executeQuery()) {
+                        while (rsAuthor.next()) {
+                            detail.authorIds.add(rsAuthor.getInt("author_id"));
+                            detail.authorNames.add(rsAuthor.getString("author_name"));
+                        }
+                    }
+                }
+
                 results.add(detail);
             }
         }
