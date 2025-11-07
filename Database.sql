@@ -267,18 +267,47 @@ CREATE TABLE Fines (
     fine_reason VARCHAR(255) NOT NULL,
     days_overdue INT,
     fine_date DATE NOT NULL,
-    payment_status ENUM('unpaid', 'paid', 'waived') DEFAULT 'unpaid',
+    payment_status ENUM('unpaid', 'paid', 'waived', 'pending') DEFAULT 'unpaid',
     payment_date DATE NULL,
     payment_method VARCHAR(50) NULL,
     processed_by INT NULL,
     notes TEXT,
+    vnpay_txn_ref VARCHAR(50) NULL,
     FOREIGN KEY (transaction_id) REFERENCES Borrowing_Transactions(transaction_id),
     FOREIGN KEY (user_id) REFERENCES Users(user_id),
     FOREIGN KEY (processed_by) REFERENCES Users(user_id),
     INDEX idx_user (user_id),
     INDEX idx_status (payment_status),
     INDEX idx_transaction (transaction_id),
-    INDEX idx_user_payment (user_id, payment_status)
+    INDEX idx_user_payment (user_id, payment_status),
+    INDEX idx_vnpay_txn (vnpay_txn_ref)
+) ENGINE=InnoDB;
+
+-- TABLE 16A: VNPAY_PAYMENTS (Payment Gateway Transactions)
+CREATE TABLE VNPay_Payments (
+    payment_id INT PRIMARY KEY AUTO_INCREMENT,
+    fine_id INT NOT NULL,
+    user_id INT NOT NULL,
+    vnp_txn_ref VARCHAR(50) NOT NULL UNIQUE,
+    vnp_amount BIGINT NOT NULL,
+    vnp_bank_code VARCHAR(20),
+    vnp_card_type VARCHAR(20),
+    vnp_order_info VARCHAR(255),
+    vnp_pay_date VARCHAR(14),
+    vnp_response_code VARCHAR(10),
+    vnp_transaction_no VARCHAR(50),
+    vnp_transaction_status VARCHAR(10),
+    vnp_secure_hash VARCHAR(255),
+    payment_status ENUM('pending', 'success', 'failed', 'cancelled') DEFAULT 'pending',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (fine_id) REFERENCES Fines(fine_id),
+    FOREIGN KEY (user_id) REFERENCES Users(user_id),
+    INDEX idx_fine (fine_id),
+    INDEX idx_user (user_id),
+    INDEX idx_txn_ref (vnp_txn_ref),
+    INDEX idx_status (payment_status),
+    INDEX idx_response_code (vnp_response_code)
 ) ENGINE=InnoDB;
 
 -- TABLE 17: NOTIFICATIONS

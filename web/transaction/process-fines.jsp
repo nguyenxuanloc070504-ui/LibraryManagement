@@ -82,6 +82,7 @@
                                             <td>
                                                 <span class="status-badge <%= 
                                                     "paid".equals(f.paymentStatus) ? "status-active" : 
+                                                    "pending".equals(f.paymentStatus) ? "status-warning" :
                                                     "waived".equals(f.paymentStatus) ? "status-success" : 
                                                     "status-locked" 
                                                 %>">
@@ -90,9 +91,16 @@
                                             </td>
                                             <td>
                                                 <% if ("unpaid".equals(f.paymentStatus)) { %>
-                                                    <a href="<%= request.getContextPath() %>/transaction/fines?id=<%= f.fineId %>" class="btn-icon-text">
+                                                    <a href="<%= request.getContextPath() %>/transaction/fines?id=<%= f.fineId %>" class="btn-icon-text" style="margin-right: 0.5rem;">
                                                         <i class="fa-solid fa-dollar-sign"></i> Process
                                                     </a>
+                                                    <button onclick="openVNPayModal(<%= f.fineId %>, <%= f.fineAmount %>)" class="btn-icon-text" style="background: #1E88E5; color: white; border: none; cursor: pointer;">
+                                                        <i class="fa-solid fa-credit-card"></i> Pay Online
+                                                    </button>
+                                                <% } else if ("pending".equals(f.paymentStatus)) { %>
+                                                    <span style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 20px; font-size: 0.85rem; font-weight: 500;">
+                                                        <i class="fa-solid fa-circle-notch fa-spin"></i> Processing Payment...
+                                                    </span>
                                                 <% } else { %>
                                                     <span class="text-muted">Processed</span>
                                                 <% } %>
@@ -192,6 +200,94 @@ document.getElementById('action-select')?.addEventListener('change', function() 
     }
 });
 </script>
+
+<!-- VNPay Payment Modal -->
+<div id="vnpayModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center;">
+    <div style="background: white; padding: 2rem; border-radius: 12px; max-width: 500px; width: 90%;">
+        <h2 style="margin-top: 0; color: #1E88E5;">
+            <i class="fa-solid fa-credit-card"></i> VNPay Payment
+        </h2>
+        <p style="color: var(--color-text-muted); margin-bottom: 1.5rem;">
+            Select your preferred payment method to pay your fine via VNPay gateway.
+        </p>
+
+        <form id="vnpayForm" action="<%= request.getContextPath() %>/vnpay-payment" method="post">
+            <input type="hidden" name="fine_id" id="vnpay_fine_id" />
+
+            <div class="form-field">
+                <label class="label-muted">Amount to Pay</label>
+                <div style="font-size: 1.5rem; font-weight: bold; color: #1E88E5; margin-bottom: 1rem;">
+                    $<span id="vnpay_amount">0.00</span>
+                </div>
+            </div>
+
+            <div class="form-field">
+                <label class="label-muted">Payment Method</label>
+                <div style="margin-bottom: 1rem;">
+                    <label style="display: block; padding: 0.75rem; border: 2px solid #e0e0e0; border-radius: 8px; cursor: pointer; margin-bottom: 0.5rem;">
+                        <input type="radio" name="bankCode" value="" checked style="margin-right: 0.5rem;" />
+                        VNPay QR (All methods)
+                    </label>
+                    <label style="display: block; padding: 0.75rem; border: 2px solid #e0e0e0; border-radius: 8px; cursor: pointer; margin-bottom: 0.5rem;">
+                        <input type="radio" name="bankCode" value="VNPAYQR" style="margin-right: 0.5rem;" />
+                        VNPay QR Code
+                    </label>
+                    <label style="display: block; padding: 0.75rem; border: 2px solid #e0e0e0; border-radius: 8px; cursor: pointer; margin-bottom: 0.5rem;">
+                        <input type="radio" name="bankCode" value="VNBANK" style="margin-right: 0.5rem;" />
+                        ATM Card / Local Bank Account
+                    </label>
+                    <label style="display: block; padding: 0.75rem; border: 2px solid #e0e0e0; border-radius: 8px; cursor: pointer;">
+                        <input type="radio" name="bankCode" value="INTCARD" style="margin-right: 0.5rem;" />
+                        International Card
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-field">
+                <label class="label-muted">Language</label>
+                <div>
+                    <label style="margin-right: 1rem;">
+                        <input type="radio" name="language" value="vn" checked style="margin-right: 0.5rem;" />
+                        Vietnamese
+                    </label>
+                    <label>
+                        <input type="radio" name="language" value="en" style="margin-right: 0.5rem;" />
+                        English
+                    </label>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 0.5rem; margin-top: 1.5rem;">
+                <button type="submit" class="btn-primary" style="flex: 1;">
+                    <i class="fa-solid fa-credit-card"></i> Proceed to Payment
+                </button>
+                <button type="button" onclick="closeVNPayModal()" class="btn-secondary" style="flex: 1;">
+                    Cancel
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function openVNPayModal(fineId, amount) {
+    document.getElementById('vnpay_fine_id').value = fineId;
+    document.getElementById('vnpay_amount').textContent = parseFloat(amount).toFixed(2);
+    document.getElementById('vnpayModal').style.display = 'flex';
+}
+
+function closeVNPayModal() {
+    document.getElementById('vnpayModal').style.display = 'none';
+}
+
+// Close modal when clicking outside
+document.getElementById('vnpayModal')?.addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeVNPayModal();
+    }
+});
+</script>
+
 <script src="<%= request.getContextPath() %>/js/utils/validate.js"></script>
 <script src="<%= request.getContextPath() %>/js/utils/format.js"></script>
 <script src="<%= request.getContextPath() %>/js/components/dropdown.js"></script>

@@ -945,5 +945,189 @@ public class TransactionDAO extends DBContext {
         }
         return results;
     }
+
+    /**
+     * Get fines for a specific member
+     */
+    public List<FineDetail> getMemberFines(int userId, String paymentStatus) throws SQLException {
+        List<FineDetail> results = new ArrayList<>();
+        String sql = "SELECT f.fine_id, f.transaction_id, f.user_id, u.full_name as member_name, " +
+                     "u.email as member_email, b.title as book_title, f.fine_amount, " +
+                     "f.fine_reason, f.days_overdue, f.fine_date, f.payment_status, " +
+                     "f.payment_date, f.payment_method, f.notes " +
+                     "FROM Fines f " +
+                     "JOIN Users u ON f.user_id = u.user_id " +
+                     "JOIN Borrowing_Transactions bt ON f.transaction_id = bt.transaction_id " +
+                     "JOIN Book_Copies bc ON bt.copy_id = bc.copy_id " +
+                     "JOIN Books b ON bc.book_id = b.book_id " +
+                     "WHERE f.user_id = ? " +
+                     (paymentStatus != null && !paymentStatus.isEmpty() ? "AND f.payment_status = ? " : "") +
+                     "ORDER BY f.fine_date DESC, f.payment_status";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            if (paymentStatus != null && !paymentStatus.isEmpty()) {
+                ps.setString(2, paymentStatus);
+            }
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    FineDetail detail = new FineDetail();
+                    detail.fineId = rs.getInt("fine_id");
+                    detail.transactionId = rs.getInt("transaction_id");
+                    detail.userId = rs.getInt("user_id");
+                    detail.memberName = rs.getString("member_name");
+                    detail.memberEmail = rs.getString("member_email");
+                    detail.bookTitle = rs.getString("book_title");
+                    detail.fineAmount = rs.getBigDecimal("fine_amount");
+                    detail.fineReason = rs.getString("fine_reason");
+                    detail.daysOverdue = rs.getInt("days_overdue");
+                    detail.fineDate = rs.getDate("fine_date");
+                    detail.paymentStatus = rs.getString("payment_status");
+                    detail.paymentDate = rs.getDate("payment_date");
+                    detail.paymentMethod = rs.getString("payment_method");
+                    detail.notes = rs.getString("notes");
+                    results.add(detail);
+                }
+            }
+        }
+        return results;
+    }
+
+    /**
+     * Get fine details by ID
+     */
+    public FineDetail getFineById(int fineId) throws SQLException {
+        String sql = "SELECT f.fine_id, f.transaction_id, f.user_id, u.full_name as member_name, " +
+                     "u.email as member_email, b.title as book_title, f.fine_amount, " +
+                     "f.fine_reason, f.days_overdue, f.fine_date, f.payment_status, " +
+                     "f.payment_date, f.payment_method, f.notes " +
+                     "FROM Fines f " +
+                     "JOIN Users u ON f.user_id = u.user_id " +
+                     "JOIN Borrowing_Transactions bt ON f.transaction_id = bt.transaction_id " +
+                     "JOIN Book_Copies bc ON bt.copy_id = bc.copy_id " +
+                     "JOIN Books b ON bc.book_id = b.book_id " +
+                     "WHERE f.fine_id = ?";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, fineId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    FineDetail detail = new FineDetail();
+                    detail.fineId = rs.getInt("fine_id");
+                    detail.transactionId = rs.getInt("transaction_id");
+                    detail.userId = rs.getInt("user_id");
+                    detail.memberName = rs.getString("member_name");
+                    detail.memberEmail = rs.getString("member_email");
+                    detail.bookTitle = rs.getString("book_title");
+                    detail.fineAmount = rs.getBigDecimal("fine_amount");
+                    detail.fineReason = rs.getString("fine_reason");
+                    detail.daysOverdue = rs.getInt("days_overdue");
+                    detail.fineDate = rs.getDate("fine_date");
+                    detail.paymentStatus = rs.getString("payment_status");
+                    detail.paymentDate = rs.getDate("payment_date");
+                    detail.paymentMethod = rs.getString("payment_method");
+                    detail.notes = rs.getString("notes");
+                    return detail;
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Create VNPay payment record
+     */
+    public void createVNPayPayment(int fineId, int userId, String vnpTxnRef, long amount, String orderInfo) throws SQLException {
+        String sql = "INSERT INTO VNPay_Payments (fine_id, user_id, vnp_txn_ref, vnp_amount, vnp_order_info, payment_status) " +
+                     "VALUES (?, ?, ?, ?, ?, 'pending')";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, fineId);
+            ps.setInt(2, userId);
+            ps.setString(3, vnpTxnRef);
+            ps.setLong(4, amount);
+            ps.setString(5, orderInfo);
+            ps.executeUpdate();
+        }
+    }
+
+    /**
+     * Update VNPay payment record with transaction details
+     */
+    public void updateVNPayPayment(String vnpTxnRef, String bankCode, String cardType, String payDate,
+                                    String responseCode, String transactionNo, String transactionStatus,
+                                    String secureHash, String paymentStatus) throws SQLException {
+        String sql = "UPDATE VNPay_Payments SET " +
+                     "vnp_bank_code = ?, vnp_card_type = ?, vnp_pay_date = ?, " +
+                     "vnp_response_code = ?, vnp_transaction_no = ?, vnp_transaction_status = ?, " +
+                     "vnp_secure_hash = ?, payment_status = ? " +
+                     "WHERE vnp_txn_ref = ?";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, bankCode);
+            ps.setString(2, cardType);
+            ps.setString(3, payDate);
+            ps.setString(4, responseCode);
+            ps.setString(5, transactionNo);
+            ps.setString(6, transactionStatus);
+            ps.setString(7, secureHash);
+            ps.setString(8, paymentStatus);
+            ps.setString(9, vnpTxnRef);
+            ps.executeUpdate();
+        }
+    }
+
+    /**
+     * Update fine payment status
+     */
+    public void updateFinePaymentStatus(int fineId, String paymentStatus, String paymentMethod, String vnpayTxnRef) throws SQLException {
+        String sql = "UPDATE Fines SET payment_status = ?, payment_method = ?, vnpay_txn_ref = ?, " +
+                     "payment_date = ? " +
+                     "WHERE fine_id = ?";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, paymentStatus);
+            
+            // Set payment_method and vnpay_txn_ref (can be null for unpaid)
+            if (paymentMethod != null) {
+                ps.setString(2, paymentMethod);
+            } else {
+                ps.setNull(2, java.sql.Types.VARCHAR);
+            }
+            
+            if (vnpayTxnRef != null) {
+                ps.setString(3, vnpayTxnRef);
+            } else {
+                ps.setNull(3, java.sql.Types.VARCHAR);
+            }
+            
+            // Set payment_date (only for paid status)
+            if ("paid".equals(paymentStatus)) {
+                ps.setDate(4, new java.sql.Date(System.currentTimeMillis()));
+            } else {
+                ps.setNull(4, java.sql.Types.DATE);
+            }
+            
+            ps.setInt(5, fineId);
+            
+            int rowsAffected = ps.executeUpdate();
+            if (rowsAffected == 0) {
+                throw new SQLException("Failed to update fine payment status - no rows affected for fine_id: " + fineId);
+            }
+        }
+    }
+
+    /**
+     * Update fine processed_by field
+     */
+    public void updateFineProcessedBy(int fineId, int processedBy) throws SQLException {
+        String sql = "UPDATE Fines SET processed_by = ? WHERE fine_id = ?";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, processedBy);
+            ps.setInt(2, fineId);
+            ps.executeUpdate();
+        }
+    }
 }
 
