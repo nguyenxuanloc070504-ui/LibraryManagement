@@ -413,6 +413,22 @@ public class MemberDAO extends DBContext {
     }
 
     /**
+     * Check if email exists in database
+     * @param email - Email to check
+     * @return true if email exists, false otherwise
+     * @throws SQLException
+     */
+    public boolean emailExists(String email) throws SQLException {
+        String sql = "SELECT 1 FROM Users WHERE email = ? LIMIT 1";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, email.trim());
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        }
+    }
+
+    /**
      * Search members by username, email, or membership number
      */
     public List<MemberDetail> searchMembers(String searchTerm) throws SQLException {

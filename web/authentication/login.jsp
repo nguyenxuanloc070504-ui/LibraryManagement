@@ -20,6 +20,12 @@
                 <div class="alert-error"><%= request.getAttribute("error") %></div>
             <% } %>
 
+            <% if (request.getParameter("registered") != null) { %>
+                <div class="alert-success">
+                    <strong>Registration successful!</strong> Your account has been created. Please sign in with your username and password to continue.
+                </div>
+            <% } %>
+
             <form class="auth-form" method="post" action="login">
                 <div class="form-field">
                     <label class="sr-only" for="email">Email Address</label>
@@ -45,7 +51,7 @@
 
                 <button class="btn-primary" type="submit">Login</button>
 
-                <p class="auth-footer">Don't have an account? <a href="../memberMgt/member-registration.jsp">Register here</a></p>
+                <p class="auth-footer">Don't have an account? <a href="<%= request.getContextPath() %>/authentication/register">Register here</a></p>
             </form>
         </div>
     </section>

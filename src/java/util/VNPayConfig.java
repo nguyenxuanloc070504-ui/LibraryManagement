@@ -19,7 +19,9 @@ public class VNPayConfig {
     // NOTE: These credentials MUST match your VNPay Merchant Account
     // Get them from: https://sandbox.vnpayment.vn/merchantv2/
     public static String vnp_PayUrl = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
-    public static String vnp_ReturnUrl = "http://localhost:8080/LibraryManagement/vnpay-return";
+    // DEPRECATED: Use getReturnUrl(HttpServletRequest request) instead for dynamic URL
+    // This static field is kept for backward compatibility but should not be used
+    // public static String vnp_ReturnUrl = "http://localhost:8080/LibraryManagement/vnpay-return";
     public static String vnp_TmnCode = "4YUP19I4";  // TODO: Replace with your TMN Code from VNPay Merchant Portal
     public static String secretKey = "MDUIFDCRAKLNBPOFIAFNEKFRNMFBYEPX";  // TODO: Replace with your Hash Secret from VNPay Merchant Portal
     public static String vnp_ApiUrl = "https://sandbox.vnpayment.vn/merchant_webapi/api/transaction";
@@ -137,5 +139,34 @@ public class VNPayConfig {
             sb.append(chars.charAt(rnd.nextInt(chars.length())));
         }
         return sb.toString();
+    }
+
+    /**
+     * Get return URL dynamically from request
+     * This ensures the return URL works on any machine (localhost, IP, or domain)
+     * 
+     * @param request HttpServletRequest to extract server information
+     * @return Full return URL for VNPay callback
+     */
+    public static String getReturnUrl(HttpServletRequest request) {
+        String scheme = request.getScheme(); // http or https
+        String serverName = request.getServerName(); // localhost, IP, or domain
+        int serverPort = request.getServerPort();
+        String contextPath = request.getContextPath(); // /LibraryManagement
+        
+        // Build base URL
+        StringBuilder url = new StringBuilder();
+        url.append(scheme).append("://").append(serverName);
+        
+        // Add port if it's not the default port (80 for http, 443 for https)
+        if ((scheme.equals("http") && serverPort != 80) || 
+            (scheme.equals("https") && serverPort != 443)) {
+            url.append(":").append(serverPort);
+        }
+        
+        // Add context path and return path
+        url.append(contextPath).append("/vnpay-return");
+        
+        return url.toString();
     }
 }

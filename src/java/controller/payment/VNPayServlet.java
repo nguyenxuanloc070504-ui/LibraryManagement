@@ -108,7 +108,7 @@ public class VNPayServlet extends HttpServlet {
                 vnp_Params.put("vnp_Locale", "vn");
             }
 
-            vnp_Params.put("vnp_ReturnUrl", VNPayConfig.vnp_ReturnUrl);
+            vnp_Params.put("vnp_ReturnUrl", VNPayConfig.getReturnUrl(request));
             vnp_Params.put("vnp_IpAddr", vnp_IpAddr);
 
             // Set expiry time (15 minutes)
